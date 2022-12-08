@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "34161676644",
+    "project_id": "bus-payment-984c2",
+    "storage_bucket": "bus-payment-984c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34161676644:android:cae1f2475717a6f76caa71",
+        "android_client_info": {
+          "package_name": "com.example.buspayment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34161676644-41hlcfhmfd87pumn23hndke7d17amtrc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOnQL0Y4-pR3RJXZDkMbkbPQIcy_w0Oos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34161676644-41hlcfhmfd87pumn23hndke7d17amtrc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
