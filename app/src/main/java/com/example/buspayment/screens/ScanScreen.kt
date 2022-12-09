@@ -11,8 +11,8 @@ import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -27,13 +28,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.buspayment.funtions.QrCodeAnalysis
+import com.example.buspayment.navigations.Screens
 
 @Composable
 fun ScanScreen(navController: NavController) {
 	var code by remember { mutableStateOf("") }
 	val context = LocalContext.current
 	val lifeCycleOwner = LocalLifecycleOwner.current
-	val cameraProvierFuture = remember {
+	val cameraProviderFuture = remember {
 		ProcessCameraProvider.getInstance(context)
 	}
 	var hasCameraPermission by remember {
@@ -54,7 +56,10 @@ fun ScanScreen(navController: NavController) {
 	LaunchedEffect(key1 = true) {
 		launcher.launch(Manifest.permission.CAMERA)
 	}
-	Column {
+	Column(
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.Center
+	) {
 		if (hasCameraPermission) {
 			AndroidView(
 				factory = { context ->
@@ -80,7 +85,7 @@ fun ScanScreen(navController: NavController) {
 						}
 					)
 					try {
-						cameraProvierFuture.get().bindToLifecycle(
+						cameraProviderFuture.get().bindToLifecycle(
 							lifeCycleOwner,
 							selector,
 							preview,
@@ -93,10 +98,12 @@ fun ScanScreen(navController: NavController) {
 				},
 				modifier = Modifier.weight(1f)
 			)
-			Text(
-				text = code,
-				modifier = Modifier.fillMaxWidth()
-			)
+			if (code == "Home") {
+				cameraProviderFuture.cancel(true)
+				navController.navigate(Screens.Login.route)
+			} else {
+				Text(text = code)
+			}
 		}
 	}
 }
