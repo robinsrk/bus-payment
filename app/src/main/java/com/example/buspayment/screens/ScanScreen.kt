@@ -13,6 +13,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -99,10 +100,9 @@ fun ScanScreen(navController: NavController) {
 				modifier = Modifier.weight(1f)
 			)
 			if (code == "Home") {
-				cameraProviderFuture.cancel(true)
-				navController.navigate(Screens.Login.route)
-			} else {
-				Text(text = code)
+				Button(onClick = { navController.navigate(Screens.Home.route) }) {
+					Text("Go home")
+				}
 			}
 		}
 	}
