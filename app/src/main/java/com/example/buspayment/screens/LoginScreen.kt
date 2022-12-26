@@ -77,7 +77,10 @@ fun LoginForm(navController: NavController) {
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
 		OutlinedTextField(
 			value = email,
-			onValueChange = { text -> email = text },
+			onValueChange = { text ->
+				email = text
+				error = ""
+			},
 			label = {
 				Text(text = "Email address")
 			},
@@ -96,7 +99,10 @@ fun LoginForm(navController: NavController) {
 		)
 		OutlinedTextField(
 			value = pass,
-			onValueChange = { text -> pass = text },
+			onValueChange = { text ->
+				pass = text
+				error = ""
+			},
 			label = {
 				Text(text = "Password")
 			},
@@ -119,25 +125,28 @@ fun LoginForm(navController: NavController) {
 				onClick = {
 					error = ""
 					if (email.isNotEmpty() && pass.isNotEmpty()) {
-						if (pass.length < 6) {
-							isLoading = true
-							Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
-								if (it.isSuccessful) {
-									isLoading = false
-									navController.navigate(Screens.Home.route) {
-										popUpTo(0)
+						if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+							if (pass.length < 6) {
+								isLoading = true
+								Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
+									if (it.isSuccessful) {
+										isLoading = false
+										navController.navigate(Screens.Home.route) {
+											popUpTo(0)
+										}
+										val user = User(0, "", email)
+										mUserViewModel.deleteUsers()
+										mUserViewModel.addUser(user)
+										Credentials().setEmail(email)
+										Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
+									} else {
+										error = "Wrong username or password"
+										isLoading = false
 									}
-									val user = User(0, "", email)
-									mUserViewModel.deleteUsers()
-									mUserViewModel.addUser(user)
-									Credentials().setEmail(email)
-									Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
-								} else {
-									error = "Wrong username or password"
-									isLoading = false
 								}
 							}
-
+						} else {
+							error = "Email is invalid"
 						}
 					} else {
 						error = "Fill all the fields"

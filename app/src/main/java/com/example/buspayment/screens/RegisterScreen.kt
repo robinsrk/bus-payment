@@ -118,7 +118,10 @@ fun RegisterForm(navController: NavController) {
 //		)
 		OutlinedTextField(
 			value = email,
-			onValueChange = { text -> email = text },
+			onValueChange = { text ->
+				email = text
+				error = ""
+			},
 			label = {
 				Text(text = "Email address")
 			},
@@ -156,7 +159,10 @@ fun RegisterForm(navController: NavController) {
 //		)
 		OutlinedTextField(
 			value = pass,
-			onValueChange = { text -> pass = text },
+			onValueChange = { text ->
+				pass = text
+				error = ""
+			},
 			label = {
 				Text(text = "Password")
 			},
@@ -177,25 +183,31 @@ fun RegisterForm(navController: NavController) {
 		) {
 			OutlinedButton(
 				onClick = {
+					error = ""
 					if (email.isNotEmpty() && name.isNotEmpty() && pass.isNotEmpty()) {
-						if (pass.length < 6) {
-							error = "Password must be at least 6 characters"
-						} else {
-							click = true
-							Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
-								if (it.isSuccessful) {
-									val userInfo = User(0, name, email)
-									mUserViewModel.addUser(userInfo)
-									navController.navigate(Screens.Home.route) {
-										popUpTo(0)
-									}
-									Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
-								} else {
-									click = false
-									Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
-								}
-							}
+						if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
 
+							if (pass.length < 6) {
+								error = "Password must be at least 6 characters"
+							} else {
+								click = true
+								Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
+									if (it.isSuccessful) {
+										val userInfo = User(0, name, email)
+										mUserViewModel.addUser(userInfo)
+										navController.navigate(Screens.Home.route) {
+											popUpTo(0)
+										}
+										Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
+									} else {
+										click = false
+										error = "Unknown error"
+									}
+								}
+
+							}
+						} else {
+							error = "Email is invalid"
 						}
 					} else {
 						error = "Fill all the required fields"
