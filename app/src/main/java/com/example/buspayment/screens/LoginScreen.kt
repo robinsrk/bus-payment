@@ -126,7 +126,7 @@ fun LoginForm(navController: NavController) {
 					error = ""
 					if (email.isNotEmpty() && pass.isNotEmpty()) {
 						if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-							if (pass.length < 6) {
+							if (pass.length > 5) {
 								isLoading = true
 								Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
 									if (it.isSuccessful) {
@@ -144,6 +144,8 @@ fun LoginForm(navController: NavController) {
 										isLoading = false
 									}
 								}
+							} else {
+								error = "Password must be at least 6 characters long"
 							}
 						} else {
 							error = "Email is invalid"
