@@ -1,0 +1,16 @@
+{
+  "busFare": [
+    {
+      "name": "Nondon Park",
+      "value": 0
+    },
+    {
+      "name": "EPZ",
+      "value": 24
+    },
+    {
+      "name": "Nobinogor",
+      "value": 35
+    }
+  ]
+}

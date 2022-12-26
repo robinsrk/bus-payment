@@ -35,8 +35,6 @@ class MainActivity : ComponentActivity() {
 				) {
 					Column(
 						modifier = Modifier.fillMaxSize(),
-						verticalArrangement = Arrangement.Center,
-						horizontalAlignment = Alignment.CenterHorizontally
 					) {
 						navController = rememberNavController()
 						SetupNavGraph(navController)
@@ -58,7 +56,6 @@ fun GreetingPreview() {
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.Center
 		) {
-			LogoImage()
 		}
 	}
 }
