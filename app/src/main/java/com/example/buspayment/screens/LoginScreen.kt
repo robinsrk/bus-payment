@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
-import com.example.buspayment.data.UserDatabase
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.funtions.Credentials
 import com.example.buspayment.navigations.Screens
@@ -75,7 +74,6 @@ fun LoginForm(navController: NavController) {
 	val mUserViewModel: UserViewModel = viewModel(
 		factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application)
 	)
-	val db = UserDatabase.getDatabase(context)
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
 		OutlinedTextField(
 			value = email,
