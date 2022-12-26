@@ -37,11 +37,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
@@ -99,25 +97,25 @@ fun RegisterForm(navController: NavController) {
 				bottom = 12.dp
 			)
 		)
-		OutlinedTextField(
-			value = num,
-			onValueChange = { text -> num = text },
-			label = {
-				Text(text = "Phone number")
-			},
-			leadingIcon = {
-				IconButton(onClick = { /*TODO*/ }) {
-					Icon(imageVector = Icons.Filled.Email, contentDescription = "Email icon")
-				}
-			},
-			keyboardOptions = KeyboardOptions(
-				keyboardType = KeyboardType.Number,
-				imeAction = ImeAction.Next
-			),
-			modifier = Modifier.padding(
-				bottom = 12.dp,
-			)
-		)
+//		OutlinedTextField(
+//			value = num,
+//			onValueChange = { text -> num = text },
+//			label = {
+//				Text(text = "Phone number")
+//			},
+//			leadingIcon = {
+//				IconButton(onClick = { /*TODO*/ }) {
+//					Icon(imageVector = Icons.Filled.Email, contentDescription = "Email icon")
+//				}
+//			},
+//			keyboardOptions = KeyboardOptions(
+//				keyboardType = KeyboardType.Number,
+//				imeAction = ImeAction.Next
+//			),
+//			modifier = Modifier.padding(
+//				bottom = 12.dp,
+//			)
+//		)
 		OutlinedTextField(
 			value = email,
 			onValueChange = { text -> email = text },
@@ -137,25 +135,25 @@ fun RegisterForm(navController: NavController) {
 				bottom = 12.dp,
 			)
 		)
-		OutlinedTextField(
-			value = id,
-			onValueChange = { text -> id = text },
-			label = {
-				Text(text = "Student ID (optional)")
-			},
-			leadingIcon = {
-				IconButton(onClick = { /*TODO*/ }) {
-					Icon(imageVector = Icons.Filled.Email, contentDescription = "Email icon")
-				}
-			},
-			keyboardOptions = KeyboardOptions(
-				keyboardType = KeyboardType.Email,
-				imeAction = ImeAction.Next
-			),
-			modifier = Modifier.padding(
-				bottom = 12.dp,
-			)
-		)
+//		OutlinedTextField(
+//			value = id,
+//			onValueChange = { text -> id = text },
+//			label = {
+//				Text(text = "Student ID (optional)")
+//			},
+//			leadingIcon = {
+//				IconButton(onClick = { /*TODO*/ }) {
+//					Icon(imageVector = Icons.Filled.Email, contentDescription = "Email icon")
+//				}
+//			},
+//			keyboardOptions = KeyboardOptions(
+//				keyboardType = KeyboardType.Email,
+//				imeAction = ImeAction.Next
+//			),
+//			modifier = Modifier.padding(
+//				bottom = 12.dp,
+//			)
+//		)
 		OutlinedTextField(
 			value = pass,
 			onValueChange = { text -> pass = text },
@@ -180,19 +178,24 @@ fun RegisterForm(navController: NavController) {
 			OutlinedButton(
 				onClick = {
 					if (email.isNotEmpty() && name.isNotEmpty() && pass.isNotEmpty()) {
-						click = true
-						Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
-							if (it.isSuccessful) {
-								val userInfo = User(0, name, email)
-								mUserViewModel.addUser(userInfo)
-								navController.navigate(Screens.Home.route) {
-									popUpTo(0)
+						if (pass.length < 6) {
+							error = "Password must be at least 6 characters"
+						} else {
+							click = true
+							Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
+								if (it.isSuccessful) {
+									val userInfo = User(0, name, email)
+									mUserViewModel.addUser(userInfo)
+									navController.navigate(Screens.Home.route) {
+										popUpTo(0)
+									}
+									Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
+								} else {
+									click = false
+									Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
 								}
-								Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
-							} else {
-								click = false
-								Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
 							}
+
 						}
 					} else {
 						error = "Fill all the required fields"
@@ -213,13 +216,5 @@ fun RegisterForm(navController: NavController) {
 				CircularProgressIndicator()
 			}
 		}
-	}
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewRegister() {
-	Surface {
-		RegisterScreen(navController = rememberNavController())
 	}
 }
