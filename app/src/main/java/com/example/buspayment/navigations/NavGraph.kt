@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.buspayment.RegisterScreen
 import com.example.buspayment.screens.HomeScreen
 import com.example.buspayment.screens.LoginScreen
 import com.example.buspayment.screens.ProfileScreen
+import com.example.buspayment.screens.RegisterScreen
 import com.example.buspayment.screens.ScanScreen
 import com.example.buspayment.screens.SplashScreen
 
