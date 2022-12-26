@@ -121,22 +121,25 @@ fun LoginForm(navController: NavController) {
 				onClick = {
 					error = ""
 					if (email.isNotEmpty() && pass.isNotEmpty()) {
-						isLoading = true
-						Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
-							if (it.isSuccessful) {
-								isLoading = false
-								navController.navigate(Screens.Home.route) {
-									popUpTo(0)
+						if (pass.length < 6) {
+							isLoading = true
+							Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
+								if (it.isSuccessful) {
+									isLoading = false
+									navController.navigate(Screens.Home.route) {
+										popUpTo(0)
+									}
+									val user = User(0, "", email)
+									mUserViewModel.deleteUsers()
+									mUserViewModel.addUser(user)
+									Credentials().setEmail(email)
+									Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
+								} else {
+									error = "Wrong username or password"
+									isLoading = false
 								}
-								val user = User(0, "", email)
-								mUserViewModel.deleteUsers()
-								mUserViewModel.addUser(user)
-								Credentials().setEmail(email)
-								Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
-							} else {
-								error = "Wrong username or password"
-								isLoading = false
 							}
+
 						}
 					} else {
 						error = "Fill all the fields"
