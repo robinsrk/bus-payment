@@ -38,7 +38,7 @@ fun SplashScreen(navController: NavController) {
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(listOf()).value
-	LaunchedEffect(key1 = true) {
+	LaunchedEffect(key1 = user) {
 		delay(2000)
 		if (user.isNotEmpty()) {
 			Credentials().setEmail(user[0].email)

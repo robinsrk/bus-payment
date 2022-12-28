@@ -42,7 +42,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
-import com.example.buspayment.funtions.Credentials
 import com.example.buspayment.navigations.Screens
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -74,6 +73,7 @@ fun LoginForm(navController: NavController) {
 	val mUserViewModel: UserViewModel = viewModel(
 		factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application)
 	)
+
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
 		OutlinedTextField(
 			value = email,
@@ -137,7 +137,6 @@ fun LoginForm(navController: NavController) {
 										val user = User(0, "", email)
 										mUserViewModel.deleteUsers()
 										mUserViewModel.addUser(user)
-										Credentials().setEmail(email)
 										Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
 									} else {
 										error = "Wrong username or password"
