@@ -77,7 +77,7 @@ fun ProfileScreen(navController: NavController) {
 							popUpTo(0)
 						}
 					},
-					Modifier.padding(20.dp)
+					Modifier.padding(10.dp)
 				) {
 					Text(text = "Cancel")
 				}
@@ -85,9 +85,21 @@ fun ProfileScreen(navController: NavController) {
 					onClick = {
 						Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
 					},
-					Modifier.padding(20.dp)
+					Modifier.padding(10.dp)
 				) {
 					Text(text = "Update")
+				}
+				OutlinedButton(
+					onClick = {
+						mUserViewModel.deleteUsers()
+						Toast.makeText(context, "Successfully logged out", Toast.LENGTH_LONG).show()
+						navController.navigate(Screens.Login.route) {
+							popUpTo(0)
+						}
+					},
+					Modifier.padding(10.dp)
+				) {
+					Text(text = "Logout")
 				}
 				
 			}

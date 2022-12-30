@@ -1,7 +1,6 @@
 package com.example.buspayment.screens
 
 import android.app.Application
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -69,10 +68,10 @@ fun HomeScreen(navController: NavController) {
 						modifier = Modifier.clickable { navController.navigate(Screens.Profile.route) },
 					)
 					Icon(imageVector = Icons.Filled.Person, contentDescription = "Profile")
-
+					
 				}
 			}
-
+			
 		}
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,17 +90,8 @@ fun HomeScreen(navController: NavController) {
 			OutlinedButton(onClick = { navController.navigate(Screens.Scan.route) }) {
 				Text(text = "Scan for new bus")
 			}
-			OutlinedButton(onClick = {
-				mUserViewModel.deleteUsers()
-				Toast.makeText(context, "Successfully logged out", Toast.LENGTH_LONG).show()
-				navController.navigate(Screens.Login.route) {
-					popUpTo(0)
-				}
-			}) {
-				Text(text = "Logout")
-			}
 		}
-
+		
 	}
 }
 
