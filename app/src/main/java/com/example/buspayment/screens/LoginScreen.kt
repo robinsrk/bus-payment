@@ -73,7 +73,7 @@ fun LoginForm(navController: NavController) {
 	val mUserViewModel: UserViewModel = viewModel(
 		factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application)
 	)
-
+	
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
 		OutlinedTextField(
 			value = email,
@@ -131,13 +131,13 @@ fun LoginForm(navController: NavController) {
 								Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
 									if (it.isSuccessful) {
 										isLoading = false
-										navController.navigate(Screens.Home.route) {
-											popUpTo(0)
-										}
 										val user = User(0, "", email)
 										mUserViewModel.deleteUsers()
 										mUserViewModel.addUser(user)
-										Toast.makeText(context, "Successfully logged in", Toast.LENGTH_LONG).show()
+										Toast.makeText(context, "Welcome, $email", Toast.LENGTH_LONG).show()
+										navController.navigate(Screens.Home.route) {
+											popUpTo(0)
+										}
 									} else {
 										error = "Wrong username or password"
 										isLoading = false
@@ -173,6 +173,6 @@ fun LoginForm(navController: NavController) {
 				CircularProgressIndicator()
 			}
 		}
-
+		
 	}
 }

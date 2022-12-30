@@ -66,7 +66,11 @@ fun ProfileScreen(navController: NavController) {
 						verticalAlignment = Alignment.CenterVertically
 					) {
 						Text(text = "Email: ")
-						OutlinedTextField(value = email, onValueChange = { text -> email = text })
+						OutlinedTextField(
+							value = email,
+							enabled = false,
+							onValueChange = { text -> email = text }
+						)
 					}
 				}
 			}

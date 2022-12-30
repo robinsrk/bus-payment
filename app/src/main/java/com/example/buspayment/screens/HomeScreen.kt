@@ -25,11 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
@@ -93,10 +91,4 @@ fun HomeScreen(navController: NavController) {
 		}
 		
 	}
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun Preview() {
-	HomeScreen(navController = rememberNavController())
 }
