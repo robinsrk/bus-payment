@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.buspayment.screens
+package com.example.buspayment.screens.user
 
 import android.app.Application
 import android.widget.Toast

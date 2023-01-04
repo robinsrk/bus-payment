@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.example.buspayment.screens
+package com.example.buspayment.screens.user
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -83,7 +83,7 @@ fun ScanScreen(navController: NavController) {
 			) == PackageManager.PERMISSION_GRANTED
 		)
 	}
-
+	
 	val launcher = rememberLauncherForActivityResult(
 		contract = ActivityResultContracts.RequestPermission(),
 		onResult = { granted ->
@@ -124,7 +124,7 @@ fun ScanScreen(navController: NavController) {
 										textFieldSize = coordinates.size.toSize()
 									}
 									.clickable { isExpanded = !isExpanded },
-
+								
 								label = { Text("From") },
 								trailingIcon = {
 									Icon(icon, "contentDescription",
@@ -147,7 +147,7 @@ fun ScanScreen(navController: NavController) {
 									)
 								}
 							}
-
+							
 						}
 					}
 				}
@@ -162,7 +162,7 @@ fun ScanScreen(navController: NavController) {
 				}
 			}
 		} else if (code == "Itihas") {
-
+			
 			Box {
 				Text(text = code, style = Typography.titleLarge)
 			}

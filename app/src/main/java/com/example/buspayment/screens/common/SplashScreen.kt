@@ -1,4 +1,4 @@
-package com.example.buspayment.screens
+package com.example.buspayment.screens.common
 
 import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
@@ -74,7 +74,7 @@ fun Splash() {
 		}
 		LogoIcon()
 		LinearProgressIndicator()
-
+		
 	}
 }
 

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.buspayment.screens
+package com.example.buspayment.screens.common
 
 import android.app.Application
 import android.widget.Toast
@@ -186,7 +186,7 @@ fun RegisterForm(navController: NavController) {
 					error = ""
 					if (email.isNotEmpty() && name.isNotEmpty() && pass.isNotEmpty()) {
 						if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-
+							
 							if (pass.length < 6) {
 								error = "Password must be at least 6 characters"
 							} else {
@@ -204,7 +204,7 @@ fun RegisterForm(navController: NavController) {
 										error = "Unknown error"
 									}
 								}
-
+								
 							}
 						} else {
 							error = "Email is invalid"

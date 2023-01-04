@@ -1,4 +1,4 @@
-package com.example.buspayment.screens
+package com.example.buspayment.screens.user
 
 import android.app.Application
 import androidx.compose.foundation.clickable
