@@ -131,7 +131,7 @@ fun LoginForm(navController: NavController) {
 								Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
 									if (it.isSuccessful) {
 										isLoading = false
-										val user = User(0, "", email)
+										val user = User(0, "", email, "")
 										mUserViewModel.deleteUsers()
 										mUserViewModel.addUser(user)
 										Toast.makeText(context, "Welcome, $email", Toast.LENGTH_LONG).show()

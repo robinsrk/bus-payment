@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.example.buspayment.screens.user
 
@@ -40,7 +40,7 @@ fun ProfileScreen(navController: NavController) {
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
-	user = mUserViewModel.readUser.observeAsState(listOf()).value
+	user = mUserViewModel.readUser.observeAsState(emptyList()).value
 	if (user.isNotEmpty()) {
 		email = user[0].email
 	}
@@ -68,7 +68,6 @@ fun ProfileScreen(navController: NavController) {
 						Text(text = "Email: ")
 						OutlinedTextField(
 							value = email,
-							enabled = false,
 							onValueChange = { text -> email = text }
 						)
 					}

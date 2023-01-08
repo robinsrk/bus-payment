@@ -25,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
-import com.example.buspayment.funtions.Credentials
 import com.example.buspayment.navigations.Screens
 import com.example.buspayment.ui.theme.LogoIcon
 import kotlinx.coroutines.delay
@@ -41,7 +40,7 @@ fun SplashScreen(navController: NavController) {
 	LaunchedEffect(key1 = user) {
 		delay(2000)
 		if (user.isNotEmpty()) {
-			Credentials().setEmail(user[0].email)
+//			Credentials().setEmail(user[0].email)
 			navController.navigate(Screens.Home.route) {
 				popUpTo(0)
 			}

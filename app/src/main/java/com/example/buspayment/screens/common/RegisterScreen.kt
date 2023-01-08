@@ -193,7 +193,7 @@ fun RegisterForm(navController: NavController) {
 								click = true
 								Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
 									if (it.isSuccessful) {
-										val userInfo = User(0, name, email)
+										val userInfo = User(0, name, email, "")
 										mUserViewModel.addUser(userInfo)
 										navController.navigate(Screens.Home.route) {
 											popUpTo(0)
