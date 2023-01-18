@@ -156,7 +156,7 @@ fun ScanScreen(navController: NavController) {
 					horizontalAlignment = Alignment.CenterHorizontally,
 					modifier = Modifier.fillMaxWidth()
 				) {
-					OutlinedButton(onClick = { navController.navigate(Screens.Home.route) }) {
+					OutlinedButton(onClick = { navController.navigate(Screens.UHome.route) }) {
 						Text(text = "Proceed to payment")
 					}
 				}

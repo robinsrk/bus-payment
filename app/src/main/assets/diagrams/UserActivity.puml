@@ -1,0 +1,41 @@
+@startuml
+'(*) --> if "has account" then
+'        --> [true] "Login"
+'        --> "Home page"
+'    else
+'        --> [false] "Register"
+'        --> "Home page"
+'
+'--> ===B1===
+'--> "Scan for buses"
+'"Scan for buses" --> "Select location"
+'"Select location" --> "Payment"
+'--> ===B2===
+'
+'===B1=== --> "Check profile"
+'"Check profile" --> "Update profile"
+'"Update profile" --> ===B2===
+
+start
+if (Has account?) then (yes)
+    repeat
+        :Login;
+    repeat while (Successful?) is (no)
+    ->yes;
+else (no)
+    repeat
+        :Register;
+    repeat while (Valid information?) is (no)
+    ->yes;
+endif
+:Home page;
+fork
+:Scan;
+:Select location;
+fork again
+:Check profile;
+end fork
+:Logout;
+stop
+
+@enduml

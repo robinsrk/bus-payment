@@ -1,0 +1,56 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+'skinparam monochrome reverse
+skinparam backgroundColor transparent
+
+' Actors
+actor User as user
+actor Conductor as conductor
+actor Admin as admin
+
+' Use cases
+(Login) as login
+(Logout) as logout
+(Bus fare payment) as payment
+(Register user) as ruser
+(Register conductor) as rconductor
+(Scan bus QR code) as scan
+(Select location) as location
+(View profile) as vprofile
+(Change password) as changep
+(Update profile) as uprofile
+(Check payment) as cpayment
+(Confirm or deny payment) as upPay
+(Generate QR code) as qrGen
+
+' User use-cases
+user --> login
+user --> scan
+user --> logout
+user --> location
+user --> ruser
+user --> payment
+user --> vprofile
+user --> uprofile
+
+' Conductor use-cases
+logout <-- conductor
+login <-- conductor
+vprofile <-- conductor
+uprofile <-- conductor
+cpayment <-- conductor
+
+' Admin use-cases
+logout <-- admin
+login <-- admin
+rconductor <-- admin
+qrGen <-- admin
+
+' General functions
+payment .> location : includes
+location .> scan : includes
+uprofile .> changep : excludes
+cpayment .> upPay : includes
+
+@enduml

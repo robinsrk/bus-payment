@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceMessageAlign center
+actor User as user
+actor Conductor as conductor
+'actor Admin as admin
+participant App as app
+participant "Payment Gateway" as pg
+database Firebase as db
+
+user -> db : Authentication request
+activate db
+return Authentication response
+user -> pg : Recharge account request
+activate pg
+return Recharge account response
+user -> app : Scan Bus QR code
+activate app
+return Bus information
+user -> app : Select location
+activate app
+return Bus fare
+user -> conductor : Make payment
+activate conductor
+conductor -> conductor : Verify payment\nand location
+return Payment status
+conductor -> pg : Withdrawal request
+activate pg
+return Withdrawal response
+@enduml

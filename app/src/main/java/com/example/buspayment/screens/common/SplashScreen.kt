@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
@@ -41,8 +40,18 @@ fun SplashScreen(navController: NavController) {
 		delay(2000)
 		if (user.isNotEmpty()) {
 //			Credentials().setEmail(user[0].email)
-			navController.navigate(Screens.Home.route) {
-				popUpTo(0)
+			if (user[0].role == "User") {
+				navController.navigate(Screens.UHome.route) {
+					popUpTo(0)
+				}
+			} else if (user[0].role == "Conductor") {
+				navController.navigate(Screens.CHome.route) {
+					popUpTo(0);
+				}
+			} else if (user[0].role == "Admin") {
+				navController.navigate(Screens.AHome.route) {
+					popUpTo(0);
+				}
 			}
 		} else {
 			navController.navigate(Screens.Login.route) {
@@ -75,10 +84,4 @@ fun Splash() {
 		LinearProgressIndicator()
 		
 	}
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun SplashPreview() {
-	Splash()
 }

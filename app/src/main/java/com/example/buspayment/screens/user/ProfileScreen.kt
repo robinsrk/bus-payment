@@ -76,9 +76,7 @@ fun ProfileScreen(navController: NavController) {
 			Row() {
 				OutlinedButton(
 					onClick = {
-						navController.navigate(Screens.Home.route) {
-							popUpTo(0)
-						}
+						navController.popBackStack()
 					},
 					Modifier.padding(10.dp)
 				) {

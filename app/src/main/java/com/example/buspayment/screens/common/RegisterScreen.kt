@@ -193,9 +193,9 @@ fun RegisterForm(navController: NavController) {
 								click = true
 								Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
 									if (it.isSuccessful) {
-										val userInfo = User(0, name, email, "")
+										val userInfo = User(0, name, email, "", "user")
 										mUserViewModel.addUser(userInfo)
-										navController.navigate(Screens.Home.route) {
+										navController.navigate(Screens.UHome.route) {
 											popUpTo(0)
 										}
 										Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()

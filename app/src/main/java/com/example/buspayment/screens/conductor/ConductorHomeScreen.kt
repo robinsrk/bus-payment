@@ -1,4 +1,4 @@
-package com.example.buspayment.screens.user
+package com.example.buspayment.screens.conductor
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +24,7 @@ import com.example.buspayment.navigations.Screens
 import com.example.buspayment.ui.theme.LogoImage
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun ConductorHomeScreen(navController: NavController) {
 	Column {
 		Column(
 			Modifier
@@ -36,7 +36,7 @@ fun HomeScreen(navController: NavController) {
 				horizontalArrangement = Arrangement.SpaceBetween,
 			) {
 				Row {
-					Text(text = "Balance")
+					Text(text = "Conductor")
 				}
 				Row {
 					Text(
@@ -46,10 +46,8 @@ fun HomeScreen(navController: NavController) {
 						modifier = Modifier.clickable { navController.navigate(Screens.Profile.route) },
 					)
 					Icon(imageVector = Icons.Filled.Person, contentDescription = "Profile")
-					
 				}
 			}
-			
 		}
 		Column(
 			horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,8 +63,8 @@ fun HomeScreen(navController: NavController) {
 				)
 			}
 			LogoImage()
-			OutlinedButton(onClick = { navController.navigate(Screens.Scan.route) }) {
-				Text(text = "Scan for new bus")
+			OutlinedButton(onClick = { navController.navigate(Screens.PList.route) }) {
+				Text(text = "Payment list")
 			}
 		}
 		

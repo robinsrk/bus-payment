@@ -9,7 +9,7 @@ fun onLogin(email: String, pass: String, error: String, navController: NavContro
 	var errorText = error
 	Firebase.auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener {
 		if (it.isSuccessful) {
-			navController.navigate(Screens.Home.route) {
+			navController.navigate(Screens.UHome.route) {
 				popUpTo(0)
 			}
 		} else {

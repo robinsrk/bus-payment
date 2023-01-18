@@ -4,12 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.buspayment.screens.admin.AdminHomeScreen
+import com.example.buspayment.screens.admin.ManageAccounts
 import com.example.buspayment.screens.common.LoginScreen
 import com.example.buspayment.screens.common.RegisterScreen
 import com.example.buspayment.screens.common.SplashScreen
-import com.example.buspayment.screens.user.HomeScreen
+import com.example.buspayment.screens.conductor.ConductorHomeScreen
+import com.example.buspayment.screens.conductor.PaymentListScreen
 import com.example.buspayment.screens.user.ProfileScreen
 import com.example.buspayment.screens.user.ScanScreen
+import com.example.buspayment.screens.user.UserHomeScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
@@ -43,9 +47,30 @@ fun SetupNavGraph(navController: NavHostController) {
 			RegisterScreen(navController)
 		}
 		composable(
-			route = Screens.Home.route
+			route = Screens.UHome.route
 		) {
-			HomeScreen(navController)
+			UserHomeScreen(navController)
+		}
+		composable(
+			route = Screens.AHome.route
+		) {
+			AdminHomeScreen(navController)
+		}
+		composable(
+			route = Screens.CHome.route
+		) {
+			ConductorHomeScreen(navController)
+		}
+		composable(
+			route = Screens.MAccount.route
+		) {
+			ManageAccounts(navController)
+		}
+		
+		composable(
+			route = Screens.PList.route
+		) {
+			PaymentListScreen(navController)
 		}
 		composable(
 			route = Screens.Scan.route
