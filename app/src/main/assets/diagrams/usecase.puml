@@ -14,7 +14,8 @@ actor Admin as admin
 (Logout) as logout
 (Bus fare payment) as payment
 (Register user) as ruser
-(Register conductor) as rconductor
+(Add conductor) as aconductor
+(Remove conductor) as rconductor
 (Scan bus QR code) as scan
 (Select location) as location
 (View profile) as vprofile
@@ -23,9 +24,10 @@ actor Admin as admin
 (Check payment) as cpayment
 (Confirm or deny payment) as upPay
 (Generate QR code) as qrGen
+(Withdraw money) as wm
 
 ' User use-cases
-user --> login
+user -> login
 user --> scan
 user --> logout
 user --> location
@@ -39,12 +41,14 @@ logout <-- conductor
 login <-- conductor
 vprofile <-- conductor
 uprofile <-- conductor
+wm <-- conductor
 cpayment <-- conductor
 
 ' Admin use-cases
 logout <-- admin
 login <-- admin
 rconductor <-- admin
+aconductor <-- admin
 qrGen <-- admin
 
 ' General functions
