@@ -65,8 +65,20 @@ fun UserHomeScreen(navController: NavController) {
 				)
 			}
 			LogoImage()
-			OutlinedButton(onClick = { navController.navigate(Screens.Scan.route) }) {
+			OutlinedButton(
+				onClick = {
+					navController.navigate(Screens.Scan.route)
+				}
+			) {
 				Text(text = "Scan for new bus")
+			}
+			OutlinedButton(
+				onClick = {
+					navController.popBackStack()
+				},
+				Modifier.padding(10.dp)
+			) {
+				Text(text = "Check history")
 			}
 		}
 		
