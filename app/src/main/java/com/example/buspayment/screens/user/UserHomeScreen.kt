@@ -36,16 +36,21 @@ fun UserHomeScreen(navController: NavController) {
 				horizontalArrangement = Arrangement.SpaceBetween,
 			) {
 				Row {
-					Text(text = "Balance")
+					Text(
+						text = "Balance",
+						Modifier.clickable { navController.navigate(Screens.Recharge.route) })
 				}
 				Row {
 					Text(
 						text = "Profile",
 						textAlign = TextAlign.Center,
-						color = MaterialTheme.colorScheme.secondary,
+//						color = MaterialTheme.colorScheme.secondary,
 						modifier = Modifier.clickable { navController.navigate(Screens.Profile.route) },
 					)
-					Icon(imageVector = Icons.Filled.Person, contentDescription = "Profile")
+					Icon(
+						imageVector = Icons.Filled.Person,
+						contentDescription = "Profile",
+					)
 					
 				}
 			}
@@ -78,7 +83,9 @@ fun UserHomeScreen(navController: NavController) {
 				},
 				Modifier.padding(10.dp)
 			) {
-				Text(text = "Check history")
+				Text(text = "Check history", Modifier.clickable {
+					navController.navigate(Screens.UHistory.route)
+				})
 			}
 		}
 		

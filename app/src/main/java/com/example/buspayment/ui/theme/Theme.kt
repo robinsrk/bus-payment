@@ -23,10 +23,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-	primary = Purple40,
-	secondary = PurpleGrey40,
-	tertiary = Pink40
-
+	primary = Color.Red,
+	secondary = Color.Red,
+	tertiary = Color.Red
+	
 	/* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -50,8 +50,7 @@ fun BusPaymentTheme(
 			val context = LocalContext.current
 			if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 		}
-
-		darkTheme -> DarkColorScheme
+//		darkTheme -> DarkColorScheme
 		else -> LightColorScheme
 	}
 	val view = LocalView.current
@@ -59,10 +58,10 @@ fun BusPaymentTheme(
 		SideEffect {
 			val window = (view.context as Activity).window
 			window.statusBarColor = colorScheme.background.toArgb()
-			WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+			WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
 		}
 	}
-
+	
 	MaterialTheme(
 		colorScheme = colorScheme,
 		typography = Typography,

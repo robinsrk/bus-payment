@@ -12,7 +12,9 @@ import com.example.buspayment.screens.common.SplashScreen
 import com.example.buspayment.screens.conductor.ConductorHomeScreen
 import com.example.buspayment.screens.conductor.PaymentListScreen
 import com.example.buspayment.screens.user.ProfileScreen
+import com.example.buspayment.screens.user.RechargeScreen
 import com.example.buspayment.screens.user.ScanScreen
+import com.example.buspayment.screens.user.UserHistoryScreen
 import com.example.buspayment.screens.user.UserHomeScreen
 
 @Composable
@@ -81,6 +83,16 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.Splash.route
 		) {
 			SplashScreen(navController)
+		}
+		composable(
+			route = Screens.UHistory.route
+		) {
+			UserHistoryScreen(navController)
+		}
+		composable(
+			route = Screens.Recharge.route
+		) {
+			RechargeScreen(navController)
 		}
 		composable(
 			route = Screens.Profile.route
