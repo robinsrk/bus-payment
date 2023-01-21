@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,16 +21,31 @@ fun RechargeScreen(navController: NavController) {
 	Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 		Column() {
 			Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-				OutlinedCard(Modifier.height(200.dp)) {
+				Card(
+					Modifier
+						.height(200.dp)
+						.width(200.dp)
+				) {
 					Text("Low package")
 				}
-				OutlinedCard(Modifier.height(200.dp)) {
+				Card(
+					Modifier
+						.height(200.dp)
+						.width(200.dp)
+				) {
 					Text("Medium package")
 				}
 			}
 			
-			Row(horizontalArrangement = Arrangement.Center) {
-				OutlinedCard {
+			Row(
+				Modifier.fillMaxWidth(),
+				horizontalArrangement = Arrangement.Center,
+			) {
+				Card(
+					Modifier
+						.height(200.dp)
+						.width(200.dp)
+				) {
 					Text("High package")
 				}
 				

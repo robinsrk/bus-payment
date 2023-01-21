@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +52,7 @@ fun ProfileScreen(navController: NavController) {
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(text = "Profile", style = MaterialTheme.typography.headlineLarge)
-			OutlinedCard(
+			Card(
 				Modifier.fillMaxWidth()
 			) {
 				Column(
@@ -93,6 +93,19 @@ fun ProfileScreen(navController: NavController) {
 						verticalAlignment = Alignment.CenterVertically
 					) {
 						Text(text = "Password: ")
+						OutlinedTextField(
+							value = "",
+							onValueChange = { }
+						)
+					}
+					Row(
+						Modifier
+							.fillMaxWidth()
+							.padding(5.dp),
+						horizontalArrangement = Arrangement.SpaceBetween,
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Text(text = "Student ID: ")
 						OutlinedTextField(
 							value = "",
 							onValueChange = { }

@@ -61,11 +61,15 @@ import com.google.android.gms.location.LocationServices
 fun ScanScreen(navController: NavController) {
 	var code by remember { mutableStateOf("") }
 	var isExpanded by remember { mutableStateOf(false) }
+	var isToExpanded by remember { mutableStateOf(false) }
 	val context = LocalContext.current
 	val lifeCycleOwner = LocalLifecycleOwner.current
-	val listItems = listOf("Dhaka", "Savar")
+	val fromList = mutableListOf("Dhaka", "Savar")
+	val toList = mutableListOf("Dhaka", "Savar")
 	val busList = listOf("Thikana", "Itihas")
 	var selectedItem by remember { mutableStateOf("Dhaka") }
+	toList.remove(selectedItem)
+	var selectedToItem = toList[0]
 	var initialLocation = LocationServices.getFusedLocationProviderClient(context)
 	val icon = if (isExpanded)
 		Icons.Filled.KeyboardArrowUp
@@ -137,11 +141,48 @@ fun ScanScreen(navController: NavController) {
 								modifier = Modifier
 									.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
 							) {
-								listItems.forEach { label ->
+								fromList.forEach { label ->
 									DropdownMenuItem(
 										onClick = {
 											selectedItem = label
 											isExpanded = !isExpanded
+										},
+										text = { Text(text = label) }
+									)
+								}
+							}
+							
+						}
+						Row {
+							OutlinedTextField(
+								value = selectedToItem,
+								onValueChange = { selectedToItem = it },
+								enabled = false,
+								modifier = Modifier
+									.fillMaxWidth()
+									.onGloballyPositioned { coordinates ->
+										//This value is used to assign to the DropDown the same width
+										textFieldSize = coordinates.size.toSize()
+									}
+									.clickable { isToExpanded = !isToExpanded },
+								
+								label = { Text("To") },
+								trailingIcon = {
+									Icon(icon, "contentDescription",
+										Modifier.clickable { isToExpanded = !isToExpanded })
+								}
+							)
+							DropdownMenu(
+								expanded = isToExpanded,
+								onDismissRequest = { isToExpanded = false },
+								modifier = Modifier
+									.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
+							) {
+								toList.forEach { label ->
+									DropdownMenuItem(
+										onClick = {
+											selectedToItem = label
+											isToExpanded = !isToExpanded
 										},
 										text = { Text(text = label) }
 									)
