@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -26,14 +28,24 @@ fun RechargeScreen(navController: NavController) {
 						.height(200.dp)
 						.width(200.dp)
 				) {
-					Text("Low package")
+					Text(
+						"50 taka",
+						Modifier.fillMaxWidth(),
+						textAlign = TextAlign.Center,
+						style = MaterialTheme.typography.headlineSmall
+					)
 				}
 				Card(
 					Modifier
 						.height(200.dp)
 						.width(200.dp)
 				) {
-					Text("Medium package")
+					Text(
+						"100 taka",
+						Modifier.fillMaxWidth(),
+						textAlign = TextAlign.Center,
+						style = MaterialTheme.typography.headlineSmall
+					)
 				}
 			}
 			
@@ -46,7 +58,12 @@ fun RechargeScreen(navController: NavController) {
 						.height(200.dp)
 						.width(200.dp)
 				) {
-					Text("High package")
+					Text(
+						"500 taka",
+						Modifier.fillMaxWidth(),
+						textAlign = TextAlign.Center,
+						style = MaterialTheme.typography.headlineSmall
+					)
 				}
 				
 			}
