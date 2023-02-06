@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buspayment.screens.admin.AdminHomeScreen
 import com.example.buspayment.screens.admin.ManageAccounts
+import com.example.buspayment.screens.admin.ManageBusScreen
 import com.example.buspayment.screens.common.LoginScreen
 import com.example.buspayment.screens.common.RegisterScreen
 import com.example.buspayment.screens.common.SplashScreen
@@ -98,6 +99,11 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.Profile.route
 		) {
 			ProfileScreen(navController)
+		}
+		composable(
+			route = Screens.MBus.route
+		) {
+			ManageBusScreen(navController)
 		}
 	}
 }

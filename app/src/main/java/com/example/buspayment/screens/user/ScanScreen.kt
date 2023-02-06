@@ -13,9 +13,9 @@ import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
@@ -31,6 +32,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -43,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -202,56 +205,76 @@ fun ScanScreen(navController: NavController) {
 					}
 				}
 			}
-		} else if (code == "Itihas") {
-			
-			Box {
-				Text(text = code, style = Typography.titleLarge)
-			}
 		} else {
 			if (hasCameraPermission) {
-				AndroidView(
-					factory = { context ->
-						val previewView = PreviewView(context)
-						val preview = Preview.Builder().build()
-						val selector = CameraSelector.Builder()
-							.requireLensFacing(CameraSelector.LENS_FACING_BACK)
-							.build()
-						preview.setSurfaceProvider(previewView.surfaceProvider)
-						val imageAnalysis = ImageAnalysis.Builder()
-							.setTargetResolution(
-								Size(
-									previewView.width,
-									previewView.height
-								)
+				Column {
+					Row(
+						Modifier
+							.fillMaxWidth()
+							.background(Color.Red, RoundedCornerShape(0.dp, 0.dp, 30.dp, 30.dp))
+							.padding(20.dp),
+						horizontalArrangement = Arrangement.SpaceBetween,
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Row {
+							Icon(
+								modifier = Modifier.clickable {
+									navController.popBackStack()
+								}, imageVector = Icons.Filled.ArrowBack, contentDescription = "Back button"
 							)
-							.setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
-							.build()
-						imageAnalysis.setAnalyzer(
-							ContextCompat.getMainExecutor(context),
-							QrCodeAnalysis { result ->
-								code = result
-							}
-						)
-						try {
-							cameraProviderFuture.get().bindToLifecycle(
-								lifeCycleOwner,
-								selector,
-								preview,
-								imageAnalysis
-							)
-						} catch (e: Exception) {
-							e.printStackTrace()
 						}
-						previewView
-					},
-					modifier = Modifier
-						.weight(1f)
-						.padding(
-							40.dp,
-							200.dp
-						)
-						.clip(RoundedCornerShape(40.dp))
-				)
+						Text("Scan for Bus", style = MaterialTheme.typography.headlineSmall)
+						Row {
+							Text(
+								text = "",
+							)
+							
+						}
+					}
+					AndroidView(
+						factory = { context ->
+							val previewView = PreviewView(context)
+							val preview = Preview.Builder().build()
+							val selector = CameraSelector.Builder()
+								.requireLensFacing(CameraSelector.LENS_FACING_BACK)
+								.build()
+							preview.setSurfaceProvider(previewView.surfaceProvider)
+							val imageAnalysis = ImageAnalysis.Builder()
+								.setTargetResolution(
+									Size(
+										previewView.width,
+										previewView.height
+									)
+								)
+								.setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+								.build()
+							imageAnalysis.setAnalyzer(
+								ContextCompat.getMainExecutor(context),
+								QrCodeAnalysis { result ->
+									code = result
+								}
+							)
+							try {
+								cameraProviderFuture.get().bindToLifecycle(
+									lifeCycleOwner,
+									selector,
+									preview,
+									imageAnalysis
+								)
+							} catch (e: Exception) {
+								e.printStackTrace()
+							}
+							previewView
+						},
+						modifier = Modifier
+							.weight(1f)
+							.padding(
+								40.dp,
+								200.dp
+							)
+							.clip(RoundedCornerShape(40.dp))
+					)
+				}
 			}
 		}
 	}
