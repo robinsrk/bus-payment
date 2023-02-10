@@ -206,7 +206,7 @@ fun RegisterScreen(
 					Text(text = "Confirm password")
 				},
 				leadingIcon = {
-					IconButton(onClick = { /*TODO*/ }) {
+					IconButton(onClick = { }) {
 						Icon(imageVector = Icons.Filled.Lock, contentDescription = "Lock icon")
 					}
 				},

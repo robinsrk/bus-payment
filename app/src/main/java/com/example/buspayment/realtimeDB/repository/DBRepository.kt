@@ -2,6 +2,7 @@ package com.example.buspayment.realtimeDB.repository
 
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentListResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import com.google.firebase.database.DataSnapshot
@@ -33,6 +34,34 @@ class DBRepository @Inject constructor(
 		}
 	
 	
+	override fun getConductorPaymentList(): Flow<ResultState<List<RealtimePaymentListResponse>>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			
+			val valueEvent = object : ValueEventListener {
+				override fun onDataChange(snapshot: DataSnapshot) {
+					val payment = snapshot.children.map {
+						RealtimePaymentListResponse(
+							it.getValue(RealtimePaymentListResponse.PaymentResponse::class.java),
+							key = it.key
+						)
+					}
+					trySend(ResultState.Success(payment))
+				}
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
+			}
+			
+			db.child("paymentList").addValueEventListener(valueEvent)
+			awaitClose {
+				db.child("paymentList").removeEventListener(valueEvent)
+				close()
+			}
+		}
+	
 	override fun getUser(): Flow<ResultState<List<RealtimeUserResponse>>> = callbackFlow {
 		trySend(ResultState.Loading)
 		
@@ -60,7 +89,7 @@ class DBRepository @Inject constructor(
 		}
 	}
 	
-	override fun delete(key: String): Flow<ResultState<String>> = callbackFlow {
+	override fun deleteUser(key: String): Flow<ResultState<String>> = callbackFlow {
 		trySend(ResultState.Loading)
 		db.child("userList").child(key).removeValue()
 			.addOnCompleteListener {
@@ -92,6 +121,23 @@ class DBRepository @Inject constructor(
 			close()
 		}
 	}
+	
+	override fun submitPayment(payment: RealtimePaymentListResponse.PaymentResponse): Flow<ResultState<String>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			db.child("paymentList").push().setValue(
+				payment
+			).addOnCompleteListener {
+				if (it.isSuccessful)
+					trySend(ResultState.Success("Payment successful"))
+			}
+				.addOnFailureListener {
+					trySend(ResultState.Failure(it))
+				}
+			awaitClose {
+				close()
+			}
+		}
 	
 	override fun addBus(bus: RealtimeBusResponse.BusResponse): Flow<ResultState<String>> =
 		callbackFlow {

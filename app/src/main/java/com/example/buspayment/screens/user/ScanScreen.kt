@@ -3,9 +3,11 @@
 package com.example.buspayment.screens.user
 
 import android.Manifest
+import android.app.Application
 import android.content.pm.PackageManager
 import android.util.Log
 import android.util.Size
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -40,8 +42,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,12 +60,19 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.buspayment.data.User
+import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.funtions.QrCodeAnalysis
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentListResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
+import com.example.buspayment.utils.ResultState
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @Composable
@@ -69,12 +80,17 @@ fun ScanScreen(
 	navController: NavController,
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
+	val context = LocalContext.current
 	val res = viewModel.distRes.value
+	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
+	var user by remember { mutableStateOf(listOf<User>()) }
+	val mUserViewModel: UserViewModel =
+		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
+	user = mUserViewModel.readUser.observeAsState(listOf()).value
 	var code by remember { mutableStateOf("") }
 	var isExpanded by remember { mutableStateOf(false) }
 	var isToExpanded by remember { mutableStateOf(false) }
-	val context = LocalContext.current
 	val lifeCycleOwner = LocalLifecycleOwner.current
 	val fromList = mutableListOf<String>()
 	val toList = mutableListOf<String>()
@@ -238,7 +254,33 @@ fun ScanScreen(
 					modifier = Modifier.fillMaxWidth()
 				) {
 					OutlinedButton(
-						onClick = { navController.navigate(Screens.UHome.route) },
+						onClick = {
+							scope.launch(Dispatchers.Main) {
+								viewModel.submitPayment(
+									RealtimePaymentListResponse.PaymentResponse(
+										"Pending",
+										from = selectedFrom,
+										to = selectedTo,
+										fromUser = user[0].email,
+										toUser = "robinsrk3@gmail.com",
+										paid = price,
+									)
+								).collect { response ->
+									when (response) {
+										is ResultState.Success -> {
+											Toast.makeText(context, "Payment successful", Toast.LENGTH_SHORT).show()
+											navController.navigate(Screens.UHome.route)
+										}
+										
+										is ResultState.Failure -> {
+											Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show()
+										}
+										
+										is ResultState.Loading -> {}
+									}
+								}
+							}
+						},
 						enabled = price > 0
 					) {
 						Text(text = "Proceed to payment $price taka")
