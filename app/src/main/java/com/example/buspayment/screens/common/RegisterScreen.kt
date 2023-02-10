@@ -232,7 +232,7 @@ fun RegisterScreen(
 									click = true
 									Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
 										if (it.isSuccessful) {
-											val userInfo = User(0, name, email, "", "user")
+											val userInfo = User(0, name, email, "", "user", 0.0)
 											mUserViewModel.addUser(userInfo)
 											
 											scope.launch(Dispatchers.Main) {
@@ -241,6 +241,7 @@ fun RegisterScreen(
 														userName = name,
 														email,
 														phone = "",
+														balance = 0.0,
 														role = "user"
 													)
 												).collect { response ->

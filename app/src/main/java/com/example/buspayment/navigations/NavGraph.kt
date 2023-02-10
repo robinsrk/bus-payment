@@ -4,8 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.buspayment.screens.admin.AddBusScreen
 import com.example.buspayment.screens.admin.AdminHomeScreen
-import com.example.buspayment.screens.admin.ManageAccounts
+import com.example.buspayment.screens.admin.ManageAccountsScreen
 import com.example.buspayment.screens.admin.ManageBusScreen
 import com.example.buspayment.screens.common.LoginScreen
 import com.example.buspayment.screens.common.RegisterScreen
@@ -67,7 +68,7 @@ fun SetupNavGraph(navController: NavHostController) {
 		composable(
 			route = Screens.MAccount.route
 		) {
-			ManageAccounts(navController)
+			ManageAccountsScreen(navController)
 		}
 		
 		composable(
@@ -104,6 +105,11 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.MBus.route
 		) {
 			ManageBusScreen(navController)
+		}
+		composable(
+			route = Screens.ABus.route
+		) {
+			AddBusScreen(navController)
 		}
 	}
 }

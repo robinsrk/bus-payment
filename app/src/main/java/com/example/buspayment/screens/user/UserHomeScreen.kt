@@ -1,5 +1,6 @@
 package com.example.buspayment.screens.user
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,17 +18,35 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.buspayment.data.User
+import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
 import com.example.buspayment.ui.theme.LogoImage
 
 @Composable
 fun UserHomeScreen(navController: NavController) {
+	val context = LocalContext.current
+	var balance by remember { mutableStateOf(0.0) }
+	var user by remember { mutableStateOf(listOf<User>()) }
+	val mUserViewModel: UserViewModel =
+		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
+	user = mUserViewModel.readUser.observeAsState(emptyList()).value
+	if (user.isNotEmpty()) {
+		balance = user[0].balance
+	}
 	Column {
 		Column(
 			Modifier
@@ -43,7 +62,7 @@ fun UserHomeScreen(navController: NavController) {
 			) {
 				Row {
 					Text(
-						text = "Balance",
+						text = "Balance $balance",
 						Modifier.clickable { navController.navigate(Screens.Recharge.route) })
 				}
 				Text("", style = MaterialTheme.typography.headlineSmall)

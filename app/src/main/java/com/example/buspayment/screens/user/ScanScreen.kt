@@ -4,6 +4,7 @@ package com.example.buspayment.screens.user
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,25 +55,61 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.buspayment.funtions.QrCodeAnalysis
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
 import com.google.android.gms.location.LocationServices
+import kotlin.math.abs
 
 @Composable
-fun ScanScreen(navController: NavController) {
+fun ScanScreen(
+	navController: NavController,
+	viewModel: RealtimeViewModel = hiltViewModel()
+) {
+	val res = viewModel.distRes.value
+	val buses = viewModel.busRes.value
 	var code by remember { mutableStateOf("") }
 	var isExpanded by remember { mutableStateOf(false) }
 	var isToExpanded by remember { mutableStateOf(false) }
 	val context = LocalContext.current
 	val lifeCycleOwner = LocalLifecycleOwner.current
-	val fromList = mutableListOf("Dhaka", "Savar")
-	val toList = mutableListOf("Dhaka", "Savar")
-	val busList = listOf("Thikana", "Itihas")
-	var selectedItem by remember { mutableStateOf("Dhaka") }
-	toList.remove(selectedItem)
-	var selectedToItem = toList[0]
+	val fromList = mutableListOf<String>()
+	val toList = mutableListOf<String>()
+	var fromPrice by remember { mutableStateOf(0.0) }
+	var toPrice by remember { mutableStateOf(0.0) }
+	var price: Double = 0.0
+	if (fromPrice > 0 && toPrice > 0) {
+		price = abs((fromPrice - toPrice) * 2.5)
+	}
+	var selectedFrom by remember { mutableStateOf("") }
+	val busList = mutableListOf<String>()
+//	toList.remove(selectedFrom)
+	var selectedTo by remember { mutableStateOf("") }
+	if (res.dist.isNotEmpty()) {
+		res.dist.forEach { item ->
+			fromList.add(item.dist!!.name)
+			toList.add(item.dist.name)
+		}
+	}
+	if (buses.bus.isNotEmpty()) {
+		buses.bus.forEach { item ->
+			busList.add(item.bus!!.name)
+		}
+	}
+	if (fromList.isNotEmpty() && toList.isNotEmpty()) {
+		res.dist.forEach { item ->
+			if (selectedFrom == item.dist!!.name) {
+				fromPrice = item.dist.value
+			}
+			if (selectedTo == item.dist.name) {
+				toPrice = item.dist.value
+			}
+			Log.d("Check price", "$fromPrice $toPrice $fromPrice-$toPrice")
+		}
+	}
 	var initialLocation = LocationServices.getFusedLocationProviderClient(context)
 	val icon = if (isExpanded)
 		Icons.Filled.KeyboardArrowUp
@@ -121,8 +158,8 @@ fun ScanScreen(navController: NavController) {
 					Column(Modifier.padding(20.dp)) {
 						Row {
 							OutlinedTextField(
-								value = selectedItem,
-								onValueChange = { selectedItem = it },
+								value = selectedFrom,
+								onValueChange = { selectedFrom = it },
 								enabled = false,
 								modifier = Modifier
 									.fillMaxWidth()
@@ -147,7 +184,7 @@ fun ScanScreen(navController: NavController) {
 								fromList.forEach { label ->
 									DropdownMenuItem(
 										onClick = {
-											selectedItem = label
+											selectedFrom = label
 											isExpanded = !isExpanded
 										},
 										text = { Text(text = label) }
@@ -158,8 +195,8 @@ fun ScanScreen(navController: NavController) {
 						}
 						Row {
 							OutlinedTextField(
-								value = selectedToItem,
-								onValueChange = { selectedToItem = it },
+								value = selectedTo,
+								onValueChange = { selectedTo = it },
 								enabled = false,
 								modifier = Modifier
 									.fillMaxWidth()
@@ -184,7 +221,7 @@ fun ScanScreen(navController: NavController) {
 								toList.forEach { label ->
 									DropdownMenuItem(
 										onClick = {
-											selectedToItem = label
+											selectedTo = label
 											isToExpanded = !isToExpanded
 										},
 										text = { Text(text = label) }
@@ -200,8 +237,11 @@ fun ScanScreen(navController: NavController) {
 					horizontalAlignment = Alignment.CenterHorizontally,
 					modifier = Modifier.fillMaxWidth()
 				) {
-					OutlinedButton(onClick = { navController.navigate(Screens.UHome.route) }) {
-						Text(text = "Proceed to payment")
+					OutlinedButton(
+						onClick = { navController.navigate(Screens.UHome.route) },
+						enabled = price > 0
+					) {
+						Text(text = "Proceed to payment $price taka")
 					}
 				}
 			}

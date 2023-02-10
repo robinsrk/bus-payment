@@ -1,6 +1,7 @@
 package com.example.buspayment.realtimeDB.repository
 
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import com.google.firebase.database.DataSnapshot
@@ -107,6 +108,33 @@ class DBRepository @Inject constructor(
 				close()
 			}
 		}
+	
+	override fun getDistance(): Flow<ResultState<List<RealtimeDistanceResponse>>> = callbackFlow {
+		trySend(ResultState.Loading)
+		
+		val valueEvent = object : ValueEventListener {
+			override fun onDataChange(snapshot: DataSnapshot) {
+				val distance = snapshot.children.map {
+					RealtimeDistanceResponse(
+						it.getValue(RealtimeDistanceResponse.DistanceResponse::class.java),
+						key = it.key
+					)
+				}
+				trySend(ResultState.Success(distance))
+			}
+			
+			override fun onCancelled(error: DatabaseError) {
+				trySend(ResultState.Failure(error.toException()))
+			}
+			
+		}
+		
+		db.child("distance").addValueEventListener(valueEvent)
+		awaitClose {
+			db.child("distance").removeEventListener(valueEvent)
+			close()
+		}
+	}
 	
 	override fun getBus(): Flow<ResultState<List<RealtimeBusResponse>>> = callbackFlow {
 		trySend(ResultState.Loading)
