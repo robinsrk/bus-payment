@@ -1,10 +1,16 @@
 package com.example.buspayment.realtimeDB.repository
 
+import android.annotation.SuppressLint
+import android.app.Application
+import android.content.Context
+import android.util.Log
+import com.example.buspayment.funtions.NotificationService
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
-import com.example.buspayment.realtimeDB.responses.RealtimePaymentListResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -16,7 +22,16 @@ import javax.inject.Inject
 
 class DBRepository @Inject constructor(
 	private val db: DatabaseReference
-) : Repository {
+) : Repository, Application() {
+	companion object {
+		@SuppressLint("StaticFieldLeak")
+		private lateinit var context: Context
+		fun setContext(con: Context) {
+			context = con
+		}
+	}
+	
+	val notificationService = NotificationService(context)
 	override fun addUser(user: RealtimeUserResponse.UserResponse): Flow<ResultState<String>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
@@ -34,15 +49,15 @@ class DBRepository @Inject constructor(
 		}
 	
 	
-	override fun getConductorPaymentList(): Flow<ResultState<List<RealtimePaymentListResponse>>> =
+	override fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
 			
 			val valueEvent = object : ValueEventListener {
 				override fun onDataChange(snapshot: DataSnapshot) {
 					val payment = snapshot.children.map {
-						RealtimePaymentListResponse(
-							it.getValue(RealtimePaymentListResponse.PaymentResponse::class.java),
+						RealtimeUserHistoryResponse(
+							it.getValue(RealtimeUserHistoryResponse.PaymentResponse::class.java),
 							key = it.key
 						)
 					}
@@ -55,9 +70,70 @@ class DBRepository @Inject constructor(
 				
 			}
 			
-			db.child("paymentList").addValueEventListener(valueEvent)
+			db.child("conductorPaymentHistory").child(email).addValueEventListener(valueEvent)
 			awaitClose {
-				db.child("paymentList").removeEventListener(valueEvent)
+				db.child("conductorPaymentHistory").child(email).removeEventListener(valueEvent)
+				close()
+			}
+		}
+	
+	override fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			
+			val valueEvent = object : ValueEventListener {
+				override fun onDataChange(snapshot: DataSnapshot) {
+					val payment = snapshot.children.map {
+						RealtimeUserHistoryResponse(
+							it.getValue(RealtimeUserHistoryResponse.PaymentResponse::class.java),
+							key = it.key
+						)
+					}
+					trySend(ResultState.Success(payment))
+				}
+				
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
+			}
+			
+			val childEvent = object : ChildEventListener {
+				override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+					Log.d("Firebase", "Child added")
+				}
+				
+				override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+					val payment = snapshot.children.map {
+						it.value
+					}
+					notificationService.showNotification(
+						"Payment ${payment[4]}",
+						"Your payment of ${payment[3]} taka from ${payment[1]} to ${payment[5]} has been ${payment[4]}",
+					)
+				}
+				
+				override fun onChildRemoved(snapshot: DataSnapshot) {
+					Log.d("Firebase", "Child removed")
+				}
+				
+				override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+					Log.d("Firebase", "Child moved")
+				}
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
+			}
+			db.child("paymentList").child(email)
+				.addValueEventListener(valueEvent)
+			db.child("paymentList").child(email)
+				.addChildEventListener(childEvent)
+			awaitClose {
+				db.child("paymentList").child(email)
+					.removeEventListener(valueEvent)
 				close()
 			}
 		}
@@ -105,13 +181,14 @@ class DBRepository @Inject constructor(
 	
 	override fun updateUser(res: RealtimeUserResponse): Flow<ResultState<String>> = callbackFlow {
 		trySend(ResultState.Loading)
-		val map = HashMap<String, Any>()
-		map["userName"] = res.user?.userName!!
-		map["email"] = res.user.email
-		map["phone"] = res.user.phone
-		map["role"] = res.user.role
+		val newUser = HashMap<String, Any>()
+		newUser["userName"] = res.user?.userName!!
+		newUser["email"] = res.user.email
+		newUser["phone"] = res.user.phone
+		newUser["role"] = res.user.role
+		newUser["balance"] = res.user.balance
 		db.child("userList").child(res.key!!).updateChildren(
-			map
+			newUser
 		).addOnCompleteListener {
 			trySend(ResultState.Success("Data updated successfully"))
 		}.addOnFailureListener {
@@ -122,10 +199,36 @@ class DBRepository @Inject constructor(
 		}
 	}
 	
-	override fun submitPayment(payment: RealtimePaymentListResponse.PaymentResponse): Flow<ResultState<String>> =
+	override fun updatePayment(res: RealtimeUserHistoryResponse): Flow<ResultState<String>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
-			db.child("paymentList").push().setValue(
+			val newUser = HashMap<String, Any>()
+			newUser["fromUser"] = res.payment?.fromUser!!
+			newUser["toUser"] = res.payment.toUser!!
+			newUser["from"] = res.payment.from!!
+			newUser["to"] = res.payment.to!!
+			newUser["paid"] = res.payment.paid!!
+			newUser["bus"] = res.payment.bus!!
+			newUser["status"] = res.payment.status!!
+			db.child("paymentList").child(res.key!!).updateChildren(
+				newUser
+			).addOnCompleteListener {
+				trySend(ResultState.Success("Data updated successfully"))
+			}.addOnFailureListener {
+				trySend(ResultState.Failure(it))
+			}
+			awaitClose {
+				close()
+			}
+		}
+	
+	override fun submitPayment(
+		payment: RealtimeUserHistoryResponse.PaymentResponse,
+		email: String
+	): Flow<ResultState<String>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			db.child("paymentList").child(email).push().setValue(
 				payment
 			).addOnCompleteListener {
 				if (it.isSuccessful)
@@ -209,3 +312,4 @@ class DBRepository @Inject constructor(
 		}
 	}
 }
+

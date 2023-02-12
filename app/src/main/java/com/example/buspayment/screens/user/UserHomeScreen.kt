@@ -37,7 +37,9 @@ import com.example.buspayment.navigations.Screens
 import com.example.buspayment.ui.theme.LogoImage
 
 @Composable
-fun UserHomeScreen(navController: NavController) {
+fun UserHomeScreen(
+	navController: NavController,
+) {
 	val context = LocalContext.current
 	var balance by remember { mutableStateOf(0.0) }
 	var user by remember { mutableStateOf(listOf<User>()) }

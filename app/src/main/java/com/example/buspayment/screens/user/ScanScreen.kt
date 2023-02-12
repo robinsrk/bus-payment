@@ -66,7 +66,7 @@ import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.funtions.QrCodeAnalysis
 import com.example.buspayment.navigations.Screens
-import com.example.buspayment.realtimeDB.responses.RealtimePaymentListResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
 import com.example.buspayment.utils.ResultState
@@ -84,6 +84,7 @@ fun ScanScreen(
 	val res = viewModel.distRes.value
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
+	var bus by remember { mutableStateOf("") }
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
@@ -95,8 +96,8 @@ fun ScanScreen(
 	val fromList = mutableListOf<String>()
 	val toList = mutableListOf<String>()
 	var fromPrice by remember { mutableStateOf(0.0) }
-	var toPrice by remember { mutableStateOf(0.0) }
-	var price: Double = 0.0
+	var toPrice by remember { mutableStateOf<Double>(0.0) }
+	var price = 0.0
 	if (fromPrice > 0 && toPrice > 0) {
 		price = abs((fromPrice - toPrice) * 2.5)
 	}
@@ -257,14 +258,15 @@ fun ScanScreen(
 						onClick = {
 							scope.launch(Dispatchers.Main) {
 								viewModel.submitPayment(
-									RealtimePaymentListResponse.PaymentResponse(
+									RealtimeUserHistoryResponse.PaymentResponse(
 										"Pending",
 										from = selectedFrom,
 										to = selectedTo,
 										fromUser = user[0].email,
 										toUser = "robinsrk3@gmail.com",
 										paid = price,
-									)
+										bus = code,
+									), email = "123"
 								).collect { response ->
 									when (response) {
 										is ResultState.Success -> {
@@ -334,6 +336,12 @@ fun ScanScreen(
 								ContextCompat.getMainExecutor(context),
 								QrCodeAnalysis { result ->
 									code = result
+									bus = code
+//									scope.launch(Dispatchers.Main) {
+//										if (buses.bus.isNotEmpty()) {
+//											bus = buses.bus.filter { item -> item.bus!!.id == code }[0].bus!!.name
+//										}
+//									}
 								}
 							)
 							try {

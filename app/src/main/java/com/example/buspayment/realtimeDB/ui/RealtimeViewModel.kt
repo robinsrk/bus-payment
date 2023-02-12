@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.buspayment.realtimeDB.repository.Repository
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
-import com.example.buspayment.realtimeDB.responses.RealtimePaymentListResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +19,8 @@ import javax.inject.Inject
 class RealtimeViewModel @Inject constructor(
 	private val repo: Repository
 ) : ViewModel() {
+	
+	
 	private val _userRes: MutableState<UserState> = mutableStateOf(UserState())
 	val userRes: State<UserState> = _userRes
 	private val _distRes: MutableState<DistState> = mutableStateOf(DistState())
@@ -27,9 +29,11 @@ class RealtimeViewModel @Inject constructor(
 	val busRes: State<BusState> = _busRes
 	private val _payRes: MutableState<PaymentState> = mutableStateOf(PaymentState())
 	val payres: State<PaymentState> = _payRes
+	private val _userHisRes: MutableState<PaymentState> = mutableStateOf(PaymentState())
+	val userHisRes: State<PaymentState> = _userHisRes
 	fun addUser(users: RealtimeUserResponse.UserResponse) = repo.addUser(users)
-	fun submitPayment(payment: RealtimePaymentListResponse.PaymentResponse) =
-		repo.submitPayment(payment)
+	fun submitPayment(payment: RealtimeUserHistoryResponse.PaymentResponse, email: String) =
+		repo.submitPayment(payment, email)
 	
 	fun addBus(bus: RealtimeBusResponse.BusResponse) = repo.addBus(bus)
 	
@@ -80,29 +84,29 @@ class RealtimeViewModel @Inject constructor(
 				}
 			}
 		}
-		viewModelScope.launch {
-			repo.getConductorPaymentList().collect {
-				when (it) {
-					is ResultState.Success -> {
-						_payRes.value = PaymentState(
-							payment = it.data
-						)
-					}
-					
-					is ResultState.Failure -> {
-						_payRes.value = PaymentState(
-							error = it.msg.toString()
-						)
-					}
-					
-					is ResultState.Loading -> {
-						_payRes.value = PaymentState(
-							isLoading = true
-						)
-					}
-				}
-			}
-		}
+//		viewModelScope.launch {
+//			repo.getPaymentHistoryByUser(email = "").collect {
+//				when (it) {
+//					is ResultState.Success -> {
+//						_userHisRes.value = PaymentState(
+//							payment = it.data
+//						)
+//					}
+//
+//					is ResultState.Failure -> {
+//						_userHisRes.value = PaymentState(
+//							error = it.msg.toString()
+//						)
+//					}
+//
+//					is ResultState.Loading -> {
+//						_userHisRes.value = PaymentState(
+//							isLoading = true
+//						)
+//					}
+//				}
+//			}
+//		}
 		viewModelScope.launch {
 			repo.getDistance().collect {
 				when (it) {
@@ -128,8 +132,62 @@ class RealtimeViewModel @Inject constructor(
 		}
 	}
 	
+	fun getPaymentHistoryByUser(email: String) {
+		viewModelScope.launch {
+			repo.getPaymentHistoryByUser(email).collect {
+				when (it) {
+					is ResultState.Success -> {
+						_userHisRes.value = PaymentState(
+							payment = it.data
+						)
+					}
+					
+					is ResultState.Failure -> {
+						_userHisRes.value = PaymentState(
+							error = it.msg.toString()
+						)
+					}
+					
+					is ResultState.Loading -> {
+						_userHisRes.value = PaymentState(
+							isLoading = true
+						)
+					}
+				}
+			}
+		}
+	}
+	
+	fun getConductorPaymentList(email: String) {
+		viewModelScope.launch {
+			repo.getConductorPaymentList(email).collect {
+				when (it) {
+					is ResultState.Success -> {
+						_payRes.value = PaymentState(
+							payment = it.data
+						)
+					}
+					
+					is ResultState.Failure -> {
+						_payRes.value = PaymentState(
+							error = it.msg.toString()
+						)
+					}
+					
+					is ResultState.Loading -> {
+						_payRes.value = PaymentState(
+							isLoading = true
+						)
+					}
+				}
+			}
+		}
+	}
+	
+	
 	fun delete(key: String) = repo.deleteUser(key)
 	fun updateUser(user: RealtimeUserResponse) = repo.updateUser(user)
+	fun updatePayment(payment: RealtimeUserHistoryResponse) = repo.updatePayment(payment)
 }
 
 data class UserState(
@@ -151,7 +209,7 @@ data class DistState(
 )
 
 data class PaymentState(
-	val payment: List<RealtimePaymentListResponse> = emptyList(),
+	val payment: List<RealtimeUserHistoryResponse> = emptyList(),
 	val error: String = "",
 	val isLoading: Boolean = false
 )
