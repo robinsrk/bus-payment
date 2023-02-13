@@ -4,6 +4,7 @@ package com.example.buspayment.screens.common
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,8 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,22 +65,18 @@ fun LoginScreen(
 	val userList = viewModel.userRes.value
 	val scope = rememberCoroutineScope()
 	Log.d("userList", userList.toString())
-	var isExpanded by remember { mutableStateOf(false) }
 	var email by remember { mutableStateOf("") }
 	var error by remember { mutableStateOf("") }
 	var pass by remember { mutableStateOf("") }
 	var isLoading by remember { mutableStateOf(false) }
 	var selectedRole by remember { mutableStateOf("") }
 	val context = LocalContext.current
-	val listItems = listOf("User", "Conductor", "Admin")
-	val icon = if (isExpanded)
-		Icons.Filled.KeyboardArrowUp
-	else
-		Icons.Filled.KeyboardArrowDown
-	var textFieldSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
 	val mUserViewModel: UserViewModel = viewModel(
 		factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application)
 	)
+	LaunchedEffect(key1 = true) {
+		viewModel.getUser()
+	}
 	
 	Column(
 		Modifier.fillMaxSize(),
@@ -204,6 +200,7 @@ fun LoginScreen(
 															val user = User(
 																0,
 																item.user.userName,
+																item.user.userId,
 																email,
 																item.user.phone,
 																selectedRole,
@@ -214,29 +211,27 @@ fun LoginScreen(
 														}
 													}
 												}
-//												Toast.makeText(context, "Welcome, ", Toast.LENGTH_LONG).show()
-												if (selectedRole == "User") {
+												if (selectedRole == "user") {
 													navController.navigate(Screens.UHome.route) {
 														popUpTo(0)
 													}
-												} else if (selectedRole == "Conductor") {
+												} else if (selectedRole == "conductor") {
 													navController.navigate(Screens.CHome.route) {
 														popUpTo(0)
 													}
 												}
-												if (selectedRole == "Admin") {
+												if (selectedRole == "admin") {
 													navController.navigate(Screens.AHome.route) {
 														popUpTo(0)
 													}
 												}
 											}
-//											userList.forEach { item ->
-//												Log.d("userList", item.user!!.email)
-//												if (item.user.email == email) {
-//													selectedRole = item.user.role
-//												}
-//											}
 											isLoading = false
+											Toast.makeText(
+												context,
+												"Welcome ${email.substringBefore("@")}",
+												Toast.LENGTH_LONG
+											).show()
 										} else {
 											error = "Wrong username or password"
 											isLoading = false

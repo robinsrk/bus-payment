@@ -14,6 +14,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -138,32 +140,38 @@ class DBRepository @Inject constructor(
 			}
 		}
 	
-	override fun getUser(): Flow<ResultState<List<RealtimeUserResponse>>> = callbackFlow {
-		trySend(ResultState.Loading)
-		
-		val valueEvent = object : ValueEventListener {
-			override fun onDataChange(snapshot: DataSnapshot) {
-				val users = snapshot.children.map {
-					RealtimeUserResponse(
-						it.getValue(RealtimeUserResponse.UserResponse::class.java),
-						key = it.key
-					)
+	override fun getUser(email: String): Flow<ResultState<List<RealtimeUserResponse>>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			
+			val valueEvent = object : ValueEventListener {
+				override fun onDataChange(snapshot: DataSnapshot) {
+					val users = snapshot.children.map {
+						RealtimeUserResponse(
+							it.getValue(RealtimeUserResponse.UserResponse::class.java),
+							key = it.key
+						)
+					}
+					trySend(ResultState.Success(users))
 				}
-				trySend(ResultState.Success(users))
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
 			}
 			
-			override fun onCancelled(error: DatabaseError) {
-				trySend(ResultState.Failure(error.toException()))
+			if (email.isNotEmpty()) {
+				db.child("userList").orderByChild("email").equalTo(email).addValueEventListener(valueEvent)
+			} else {
+				db.child("userList").addValueEventListener(valueEvent)
 			}
-			
+			awaitClose {
+				db.child("userList").removeEventListener(valueEvent)
+				db.child("userList").orderByChild("email").equalTo(email).removeEventListener(valueEvent)
+				close()
+			}
 		}
-		
-		db.child("userList").addValueEventListener(valueEvent)
-		awaitClose {
-			db.child("userList").removeEventListener(valueEvent)
-			close()
-		}
-	}
 	
 	override fun deleteUser(key: String): Flow<ResultState<String>> = callbackFlow {
 		trySend(ResultState.Loading)
@@ -210,7 +218,7 @@ class DBRepository @Inject constructor(
 			newUser["paid"] = res.payment.paid!!
 			newUser["bus"] = res.payment.bus!!
 			newUser["status"] = res.payment.status!!
-			db.child("paymentList").child(res.key!!).updateChildren(
+			db.child("userPaymentList").child(res.key!!).updateChildren(
 				newUser
 			).addOnCompleteListener {
 				trySend(ResultState.Success("Data updated successfully"))
@@ -284,6 +292,55 @@ class DBRepository @Inject constructor(
 			close()
 		}
 	}
+	
+	override fun updateBalance(pay: Double, userId: String): Flow<ResultState<String>> =
+		callbackFlow {
+			Log.d("entered", "entered")
+			trySend(ResultState.Loading)
+			val paymentTransaction = object : Transaction.Handler {
+				override fun doTransaction(currentData: MutableData): Transaction.Result {
+					Log.i("firebase payment", "Updating balance for $userId")
+					val currentValue = currentData.getValue(RealtimeUserResponse.UserResponse::class.java)
+					currentValue?.balance = currentValue?.balance?.plus(pay)!!
+					currentData.value = currentValue
+					return Transaction.success(currentData)
+				}
+				
+				override fun onComplete(
+					error: DatabaseError?,
+					committed: Boolean,
+					currentData: DataSnapshot?
+				) {
+					if (error != null) {
+						Log.e("Firebase", "Transaction failed")
+					} else {
+						Log.i("Firebase", "Transaction succeeded")
+					}
+				}
+				
+			}
+			val singleValueListener = object : ValueEventListener {
+				override fun onDataChange(snapshot: DataSnapshot) {
+					snapshot.children.forEach { child ->
+						Log.d("firebase single value", "adding single value event listener")
+						child.ref.runTransaction(paymentTransaction)
+					}
+				}
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
+			}
+			db.child("userList").orderByChild("userId").equalTo(userId)
+				.addListenerForSingleValueEvent(singleValueListener)
+//			db.child("userList").runTransaction(paymentTransaction)
+			awaitClose {
+				db.child("userList").orderByChild("userId").equalTo(userId)
+					.removeEventListener(singleValueListener)
+				close()
+			}
+		}
 	
 	override fun getBus(): Flow<ResultState<List<RealtimeBusResponse>>> = callbackFlow {
 		trySend(ResultState.Loading)

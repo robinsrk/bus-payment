@@ -68,7 +68,6 @@ fun RegisterScreen(
 	var num by remember { mutableStateOf("") }
 	var pass by remember { mutableStateOf("") }
 	var cpass by remember { mutableStateOf("") }
-	var id by remember { mutableStateOf("") }
 	var error by remember { mutableStateOf("") }
 	var click by remember { mutableStateOf(false) }
 	val scope = rememberCoroutineScope()
@@ -232,15 +231,17 @@ fun RegisterScreen(
 									click = true
 									Firebase.auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener {
 										if (it.isSuccessful) {
-											val userInfo = User(0, name, email, "", "user", 0.0)
+											val userInfo =
+												User(0, name, email.substringBefore("@"), email, num, "user", 0.0)
 											mUserViewModel.addUser(userInfo)
 											
 											scope.launch(Dispatchers.Main) {
 												viewModel.addUser(
 													RealtimeUserResponse.UserResponse(
 														userName = name,
+														userId = email.substringBefore("@"),
 														email,
-														phone = "",
+														phone = num,
 														balance = 0.0,
 														role = "user"
 													)

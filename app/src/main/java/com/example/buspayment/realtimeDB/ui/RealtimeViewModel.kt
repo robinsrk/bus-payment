@@ -39,29 +39,6 @@ class RealtimeViewModel @Inject constructor(
 	
 	init {
 		viewModelScope.launch {
-			repo.getUser().collect {
-				when (it) {
-					is ResultState.Success -> {
-						_userRes.value = UserState(
-							user = it.data
-						)
-					}
-					
-					is ResultState.Failure -> {
-						_userRes.value = UserState(
-							error = it.msg.toString()
-						)
-					}
-					
-					is ResultState.Loading -> {
-						_userRes.value = UserState(
-							isLoading = true
-						)
-					}
-				}
-			}
-		}
-		viewModelScope.launch {
 			repo.getBus().collect {
 				when (it) {
 					is ResultState.Success -> {
@@ -184,10 +161,36 @@ class RealtimeViewModel @Inject constructor(
 		}
 	}
 	
+	fun getUser(email: String = "") {
+		viewModelScope.launch {
+			repo.getUser(email).collect {
+				when (it) {
+					is ResultState.Success -> {
+						_userRes.value = UserState(
+							user = it.data
+						)
+					}
+					
+					is ResultState.Failure -> {
+						_userRes.value = UserState(
+							error = it.msg.toString()
+						)
+					}
+					
+					is ResultState.Loading -> {
+						_userRes.value = UserState(
+							isLoading = true
+						)
+					}
+				}
+			}
+		}
+	}
 	
 	fun delete(key: String) = repo.deleteUser(key)
 	fun updateUser(user: RealtimeUserResponse) = repo.updateUser(user)
 	fun updatePayment(payment: RealtimeUserHistoryResponse) = repo.updatePayment(payment)
+	fun updateBalance(pay: Double, userId: String) = repo.updateBalance(pay, userId)
 }
 
 data class UserState(

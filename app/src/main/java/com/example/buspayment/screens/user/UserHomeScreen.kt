@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -29,25 +30,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.LogoImage
+import kotlinx.coroutines.delay
 
 @Composable
 fun UserHomeScreen(
 	navController: NavController,
+	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	val context = LocalContext.current
+	val users = viewModel.userRes.value
 	var balance by remember { mutableStateOf(0.0) }
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(emptyList()).value
-	if (user.isNotEmpty()) {
-		balance = user[0].balance
+	LaunchedEffect(key1 = true) {
+		delay(100)
+		if (user.isNotEmpty()) {
+			viewModel.getUser(user[0].email)
+		}
+	}
+	if (users.user.isNotEmpty()) {
+		balance = users.user[0].user?.balance!!
 	}
 	Column {
 		Column(

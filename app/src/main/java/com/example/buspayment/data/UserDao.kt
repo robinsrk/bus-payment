@@ -10,11 +10,11 @@ import androidx.room.Query
 interface UserDao {
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	fun addUser(user: User)
-
+	
 	@Query("Select * from user")
 	fun readUser(): LiveData<List<User>>
-
+	
 	@Query("DELETE FROM user")
 	fun deleteUsers()
-
+	
 }

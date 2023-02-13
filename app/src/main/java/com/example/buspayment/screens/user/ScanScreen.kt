@@ -81,7 +81,7 @@ fun ScanScreen(
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	val context = LocalContext.current
-	val res = viewModel.distRes.value
+	val distance = viewModel.distRes.value
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
 	var bus by remember { mutableStateOf("") }
@@ -105,8 +105,8 @@ fun ScanScreen(
 	val busList = mutableListOf<String>()
 //	toList.remove(selectedFrom)
 	var selectedTo by remember { mutableStateOf("") }
-	if (res.dist.isNotEmpty()) {
-		res.dist.forEach { item ->
+	if (distance.dist.isNotEmpty()) {
+		distance.dist.forEach { item ->
 			fromList.add(item.dist!!.name)
 			toList.add(item.dist.name)
 		}
@@ -117,7 +117,7 @@ fun ScanScreen(
 		}
 	}
 	if (fromList.isNotEmpty() && toList.isNotEmpty()) {
-		res.dist.forEach { item ->
+		distance.dist.forEach { item ->
 			if (selectedFrom == item.dist!!.name) {
 				fromPrice = item.dist.value
 			}
@@ -270,7 +270,6 @@ fun ScanScreen(
 								).collect { response ->
 									when (response) {
 										is ResultState.Success -> {
-											Toast.makeText(context, "Payment successful", Toast.LENGTH_SHORT).show()
 											navController.navigate(Screens.UHome.route)
 										}
 										
@@ -281,6 +280,22 @@ fun ScanScreen(
 										is ResultState.Loading -> {}
 									}
 								}
+							}
+							scope.launch(Dispatchers.Main) {
+								viewModel.updateBalance(price, user[0].email.substringBefore("@"))
+									.collect { response ->
+										when (response) {
+											is ResultState.Success -> {
+												Toast.makeText(context, "Payment successful", Toast.LENGTH_SHORT).show()
+											}
+											
+											is ResultState.Failure -> {
+												Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show()
+											}
+											
+											is ResultState.Loading -> {}
+										}
+									}
 							}
 						},
 						enabled = price > 0

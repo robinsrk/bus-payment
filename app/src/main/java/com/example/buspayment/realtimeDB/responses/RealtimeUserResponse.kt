@@ -7,9 +7,11 @@ data class RealtimeUserResponse(
 	
 	data class UserResponse(
 		val userName: String = "",
+		val userId: String = "",
 		val email: String = "",
 		val phone: String = "",
-		val balance: Double = 0.0,
+		var balance: Double = 0.0,
+		val pendingPayment: Double = 0.0,
 		val role: String = ""
 	)
 	
