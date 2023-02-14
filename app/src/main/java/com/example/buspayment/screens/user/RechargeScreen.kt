@@ -1,5 +1,7 @@
 package com.example.buspayment.screens.user
 
+import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,15 +20,38 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.buspayment.data.User
+import com.example.buspayment.data.UserViewModel
+import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
+import com.example.buspayment.utils.ResultState
+import kotlinx.coroutines.launch
 
 @Composable
-fun RechargeScreen(navController: NavController) {
+fun RechargeScreen(
+	navController: NavController,
+	viewModel: RealtimeViewModel = hiltViewModel()
+) {
+	val context = LocalContext.current
+	var user by remember { mutableStateOf(listOf<User>()) }
+	val mUserViewModel: UserViewModel =
+		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
+	user = mUserViewModel.readUser.observeAsState(emptyList()).value
+	val scope = rememberCoroutineScope()
 	Column(Modifier.fillMaxSize()) {
 		Row(
 			Modifier
@@ -55,6 +80,29 @@ fun RechargeScreen(navController: NavController) {
 				Modifier
 					.height(200.dp)
 					.width(200.dp)
+					.clickable {
+						scope.launch {
+							viewModel
+								.updateBalance(50.0, user[0].email.substringBefore("@"))
+								.collect { response ->
+									when (response) {
+										is ResultState.Success -> {
+											Toast
+												.makeText(context, "Payment successful", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Failure -> {
+											Toast
+												.makeText(context, "Failed", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Loading -> {}
+									}
+								}
+						}
+					}
 			) {
 				Text(
 					"50 taka",
@@ -67,6 +115,29 @@ fun RechargeScreen(navController: NavController) {
 				Modifier
 					.height(200.dp)
 					.width(200.dp)
+					.clickable {
+						scope.launch {
+							viewModel
+								.updateBalance(100.0, user[0].email.substringBefore("@"))
+								.collect { response ->
+									when (response) {
+										is ResultState.Success -> {
+											Toast
+												.makeText(context, "Payment successful", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Failure -> {
+											Toast
+												.makeText(context, "Failed", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Loading -> {}
+									}
+								}
+						}
+					}
 			) {
 				Text(
 					"100 taka",
@@ -80,6 +151,29 @@ fun RechargeScreen(navController: NavController) {
 				Modifier
 					.height(200.dp)
 					.width(200.dp)
+					.clickable {
+						scope.launch {
+							viewModel
+								.updateBalance(500.0, user[0].email.substringBefore("@"))
+								.collect { response ->
+									when (response) {
+										is ResultState.Success -> {
+											Toast
+												.makeText(context, "Payment successful", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Failure -> {
+											Toast
+												.makeText(context, "Failed", Toast.LENGTH_SHORT)
+												.show()
+										}
+										
+										is ResultState.Loading -> {}
+									}
+								}
+						}
+					}
 			) {
 				Text(
 					"500 taka",

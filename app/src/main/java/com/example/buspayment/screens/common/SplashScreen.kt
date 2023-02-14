@@ -36,24 +36,24 @@ fun SplashScreen(navController: NavController) {
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(listOf()).value
-	LaunchedEffect(true) {
+	LaunchedEffect(user.isNotEmpty()) {
 		delay(2000)
 		if (user.isNotEmpty()) {
 //			Credentials().setEmail(user[0].email)
 			when (user[0].role) {
-				"User" -> {
+				"user" -> {
 					navController.navigate(Screens.UHome.route) {
 						popUpTo(0)
 					}
 				}
 				
-				"Conductor" -> {
+				"conductor" -> {
 					navController.navigate(Screens.CHome.route) {
 						popUpTo(0);
 					}
 				}
 				
-				"Admin" -> {
+				"admin" -> {
 					navController.navigate(Screens.AHome.route) {
 						popUpTo(0);
 					}

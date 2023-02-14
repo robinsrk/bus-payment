@@ -1,6 +1,6 @@
 package com.example.buspayment.realtimeDB.responses
 
-data class RealtimeUserHistoryResponse(
+data class RealtimePaymentResponse(
 	val payment: PaymentResponse?,
 	val key: String? = "",
 ) {
@@ -12,5 +12,6 @@ data class RealtimeUserHistoryResponse(
 		val to: String? = "",
 		val paid: Double? = 0.0,
 		val bus: String? = "",
+		val code: String? = "",
 	)
 }

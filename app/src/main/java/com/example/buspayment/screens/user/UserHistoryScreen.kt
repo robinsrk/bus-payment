@@ -14,6 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.HourglassBottom
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,7 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
-import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 
 @Composable
@@ -53,8 +57,9 @@ fun UserHistoryScreen(
 	if (user.isNotEmpty()) {
 		email = user[0].email
 	}
-	LaunchedEffect(key1 = true) {
-		viewModel.getPaymentHistoryByUser(email = "123")
+	LaunchedEffect(key1 = user) {
+		if (email.isNotEmpty())
+			viewModel.getPaymentHistoryByUser(email.substringBefore("@"))
 	}
 	val history = viewModel.userHisRes.value
 	Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -93,12 +98,16 @@ fun UserHistoryScreen(
 
 @Composable
 fun HistoryRow(
-	itemState: RealtimeUserHistoryResponse.PaymentResponse
+	itemState: RealtimePaymentResponse.PaymentResponse
 ) {
+	var alert by remember { mutableStateOf(false) }
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(10.dp)
+			.clickable {
+				alert = true
+			}
 	) {
 		Row(
 			horizontalArrangement = Arrangement.SpaceBetween,
@@ -113,7 +122,34 @@ fun HistoryRow(
 				Text(itemState.paid!!.toString() + " Taka")
 				Text("${itemState.from!!} -> ${itemState.to!!}")
 			}
-			Text(itemState.status!!)
+			when (itemState.status) {
+				"Accepted" -> {
+					Icon(imageVector = Icons.Filled.Done, contentDescription = "Accepted", tint = Color.Green)
+				}
+				
+				"Rejected" -> Icon(
+					imageVector = Icons.Filled.Close,
+					contentDescription = "Accepted",
+					tint = Color.Red
+				)
+				
+				else -> Icon(
+					imageVector = Icons.Filled.HourglassBottom,
+					contentDescription = "Accepted",
+				)
+			}
 		}
+		if (alert) {
+			AlertDialog(
+				onDismissRequest = { alert = false },
+				confirmButton = { Text(text = "Done", modifier = Modifier.clickable { alert = false }) },
+				title = {
+					Text(
+						itemState.code!!,
+						style = MaterialTheme.typography.headlineLarge
+					)
+				})
+		}
+		
 	}
 }

@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.buspayment.screens.user
 
 import android.app.Application
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,10 +13,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedAssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -38,7 +48,6 @@ import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.LogoImage
-import kotlinx.coroutines.delay
 
 @Composable
 fun UserHomeScreen(
@@ -52,8 +61,7 @@ fun UserHomeScreen(
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(emptyList()).value
-	LaunchedEffect(key1 = true) {
-		delay(100)
+	LaunchedEffect(key1 = user) {
 		if (user.isNotEmpty()) {
 			viewModel.getUser(user[0].email)
 		}
@@ -74,10 +82,37 @@ fun UserHomeScreen(
 				horizontalArrangement = Arrangement.SpaceBetween,
 				verticalAlignment = Alignment.CenterVertically
 			) {
-				Row {
-					Text(
-						text = "Balance $balance",
-						Modifier.clickable { navController.navigate(Screens.Recharge.route) })
+				Row(
+					modifier = Modifier.animateContentSize(
+						animationSpec = tween(
+							durationMillis = 500,
+							easing = LinearOutSlowInEasing
+						)
+					)
+				) {
+					ElevatedAssistChip(onClick = { navController.navigate(Screens.Recharge.route) }, label = {
+						Row(
+							modifier = Modifier.animateContentSize(
+								animationSpec = tween(
+									durationMillis = 500,
+									easing = LinearOutSlowInEasing
+								),
+							),
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							Text(
+								text = "Balance "
+							)
+							if (users.isLoading) {
+								CircularProgressIndicator(
+									modifier = Modifier
+										.height(16.dp)
+										.width(16.dp)
+								)
+							} else Text("$balance")
+							
+						}
+					})
 				}
 				Text("", style = MaterialTheme.typography.headlineSmall)
 				Row {

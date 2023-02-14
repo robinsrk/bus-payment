@@ -2,7 +2,7 @@ package com.example.buspayment.realtimeDB.repository
 
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
-import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import kotlinx.coroutines.flow.Flow
@@ -17,13 +17,14 @@ interface Repository {
 	fun getDistance(): Flow<ResultState<List<RealtimeDistanceResponse>>>
 	fun updateBalance(pay: Double, userId: String): Flow<ResultState<String>>
 	fun submitPayment(
-		payment: RealtimeUserHistoryResponse.PaymentResponse,
-		email: String
+		payment: RealtimePaymentResponse.PaymentResponse,
+		from: String,
+		to: String
 	): Flow<ResultState<String>>
 	
-	fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>>
-	fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>>
-	fun updatePayment(res: RealtimeUserHistoryResponse): Flow<ResultState<String>>
+	fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimePaymentResponse>>>
+	fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimePaymentResponse>>>
+	fun updatePayment(email: String, res: RealtimePaymentResponse): Flow<ResultState<String>>
 	fun deleteUser(
 		key: String
 	): Flow<ResultState<String>>

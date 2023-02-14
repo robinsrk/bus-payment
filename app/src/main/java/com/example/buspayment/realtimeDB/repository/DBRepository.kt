@@ -7,7 +7,7 @@ import android.util.Log
 import com.example.buspayment.funtions.NotificationService
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
-import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import com.google.firebase.database.ChildEventListener
@@ -51,19 +51,21 @@ class DBRepository @Inject constructor(
 		}
 	
 	
-	override fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>> =
+	override fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimePaymentResponse>>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
 			
 			val valueEvent = object : ValueEventListener {
 				override fun onDataChange(snapshot: DataSnapshot) {
-					val payment = snapshot.children.map {
-						RealtimeUserHistoryResponse(
-							it.getValue(RealtimeUserHistoryResponse.PaymentResponse::class.java),
-							key = it.key
-						)
+					snapshot.children.map { item ->
+						val payment = item.children.map {
+							RealtimePaymentResponse(
+								it.getValue(RealtimePaymentResponse.PaymentResponse::class.java),
+								key = it.key
+							)
+						}
+						trySend(ResultState.Success(payment))
 					}
-					trySend(ResultState.Success(payment))
 				}
 				
 				override fun onCancelled(error: DatabaseError) {
@@ -72,22 +74,22 @@ class DBRepository @Inject constructor(
 				
 			}
 			
-			db.child("conductorPaymentHistory").child(email).addValueEventListener(valueEvent)
+			db.child("paymentList").addValueEventListener(valueEvent)
 			awaitClose {
-				db.child("conductorPaymentHistory").child(email).removeEventListener(valueEvent)
+				db.child("paymentList").removeEventListener(valueEvent)
 				close()
 			}
 		}
 	
-	override fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimeUserHistoryResponse>>> =
+	override fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimePaymentResponse>>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
 			
 			val valueEvent = object : ValueEventListener {
 				override fun onDataChange(snapshot: DataSnapshot) {
 					val payment = snapshot.children.map {
-						RealtimeUserHistoryResponse(
-							it.getValue(RealtimeUserHistoryResponse.PaymentResponse::class.java),
+						RealtimePaymentResponse(
+							it.getValue(RealtimePaymentResponse.PaymentResponse::class.java),
 							key = it.key
 						)
 					}
@@ -207,7 +209,10 @@ class DBRepository @Inject constructor(
 		}
 	}
 	
-	override fun updatePayment(res: RealtimeUserHistoryResponse): Flow<ResultState<String>> =
+	override fun updatePayment(
+		email: String,
+		res: RealtimePaymentResponse
+	): Flow<ResultState<String>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
 			val newUser = HashMap<String, Any>()
@@ -218,7 +223,7 @@ class DBRepository @Inject constructor(
 			newUser["paid"] = res.payment.paid!!
 			newUser["bus"] = res.payment.bus!!
 			newUser["status"] = res.payment.status!!
-			db.child("userPaymentList").child(res.key!!).updateChildren(
+			db.child("paymentList").child(email).child(res.key!!).updateChildren(
 				newUser
 			).addOnCompleteListener {
 				trySend(ResultState.Success("Data updated successfully"))
@@ -231,12 +236,22 @@ class DBRepository @Inject constructor(
 		}
 	
 	override fun submitPayment(
-		payment: RealtimeUserHistoryResponse.PaymentResponse,
-		email: String
+		payment: RealtimePaymentResponse.PaymentResponse,
+		from: String,
+		to: String
 	): Flow<ResultState<String>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
-			db.child("paymentList").child(email).push().setValue(
+			db.child("paymentList").child(from).push().setValue(
+				payment
+			).addOnCompleteListener {
+				if (it.isSuccessful)
+					trySend(ResultState.Success("Payment successful"))
+			}
+				.addOnFailureListener {
+					trySend(ResultState.Failure(it))
+				}
+			db.child("conductorPaymentList").child(to).push().setValue(
 				payment
 			).addOnCompleteListener {
 				if (it.isSuccessful)

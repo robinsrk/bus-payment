@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.buspayment.realtimeDB.repository.Repository
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
-import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.utils.ResultState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,8 +32,12 @@ class RealtimeViewModel @Inject constructor(
 	private val _userHisRes: MutableState<PaymentState> = mutableStateOf(PaymentState())
 	val userHisRes: State<PaymentState> = _userHisRes
 	fun addUser(users: RealtimeUserResponse.UserResponse) = repo.addUser(users)
-	fun submitPayment(payment: RealtimeUserHistoryResponse.PaymentResponse, email: String) =
-		repo.submitPayment(payment, email)
+	fun submitPayment(
+		payment: RealtimePaymentResponse.PaymentResponse,
+		from: String,
+		to: String
+	) =
+		repo.submitPayment(payment, from, to)
 	
 	fun addBus(bus: RealtimeBusResponse.BusResponse) = repo.addBus(bus)
 	
@@ -189,7 +193,9 @@ class RealtimeViewModel @Inject constructor(
 	
 	fun delete(key: String) = repo.deleteUser(key)
 	fun updateUser(user: RealtimeUserResponse) = repo.updateUser(user)
-	fun updatePayment(payment: RealtimeUserHistoryResponse) = repo.updatePayment(payment)
+	fun updatePayment(email: String, payment: RealtimePaymentResponse) =
+		repo.updatePayment(email, payment)
+	
 	fun updateBalance(pay: Double, userId: String) = repo.updateBalance(pay, userId)
 }
 
@@ -212,7 +218,7 @@ data class DistState(
 )
 
 data class PaymentState(
-	val payment: List<RealtimeUserHistoryResponse> = emptyList(),
+	val payment: List<RealtimePaymentResponse> = emptyList(),
 	val error: String = "",
 	val isLoading: Boolean = false
 )

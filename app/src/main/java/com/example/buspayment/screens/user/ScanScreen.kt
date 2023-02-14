@@ -66,7 +66,7 @@ import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.funtions.QrCodeAnalysis
 import com.example.buspayment.navigations.Screens
-import com.example.buspayment.realtimeDB.responses.RealtimeUserHistoryResponse
+import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
 import com.example.buspayment.utils.ResultState
@@ -74,6 +74,7 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlin.random.Random
 
 @Composable
 fun ScanScreen(
@@ -90,6 +91,7 @@ fun ScanScreen(
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(listOf()).value
 	var code by remember { mutableStateOf("") }
+	var busName by remember { mutableStateOf("") }
 	var isExpanded by remember { mutableStateOf(false) }
 	var isToExpanded by remember { mutableStateOf(false) }
 	val lifeCycleOwner = LocalLifecycleOwner.current
@@ -111,9 +113,16 @@ fun ScanScreen(
 			toList.add(item.dist.name)
 		}
 	}
+	LaunchedEffect(code) {
+		buses.bus.map { item ->
+			if (code == item.bus!!.id) {
+				busName = item.bus.name
+			}
+		}
+	}
 	if (buses.bus.isNotEmpty()) {
 		buses.bus.forEach { item ->
-			busList.add(item.bus!!.name)
+			busList.add(item.bus!!.id)
 		}
 	}
 	if (fromList.isNotEmpty() && toList.isNotEmpty()) {
@@ -159,7 +168,7 @@ fun ScanScreen(
 		verticalArrangement = Arrangement.Center,
 		modifier = Modifier.fillMaxSize()
 	) {
-		if (code in busList) {
+		if (busName.isNotEmpty()) {
 			Card(
 				modifier = Modifier
 					.width(300.dp)
@@ -258,15 +267,17 @@ fun ScanScreen(
 						onClick = {
 							scope.launch(Dispatchers.Main) {
 								viewModel.submitPayment(
-									RealtimeUserHistoryResponse.PaymentResponse(
+									RealtimePaymentResponse.PaymentResponse(
 										"Pending",
 										from = selectedFrom,
 										to = selectedTo,
-										fromUser = user[0].email,
-										toUser = "robinsrk3@gmail.com",
+										fromUser = user[0].email.substringBefore("@"),
+										toUser = code,
 										paid = price,
-										bus = code,
-									), email = "123"
+										bus = busName,
+										code = Random.nextInt(1000, 10000).toString()
+//										code = java.util.Random().nextInt(9999 - 1001) + 1000.toString(),
+									), from = user[0].email.substringBefore("@"), to = code
 								).collect { response ->
 									when (response) {
 										is ResultState.Success -> {
@@ -282,7 +293,7 @@ fun ScanScreen(
 								}
 							}
 							scope.launch(Dispatchers.Main) {
-								viewModel.updateBalance(price, user[0].email.substringBefore("@"))
+								viewModel.updateBalance(-price, user[0].email.substringBefore("@"))
 									.collect { response ->
 										when (response) {
 											is ResultState.Success -> {
