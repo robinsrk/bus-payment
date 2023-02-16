@@ -15,7 +15,7 @@ interface Repository {
 	fun getUser(email: String = ""): Flow<ResultState<List<RealtimeUserResponse>>>
 	fun getBus(): Flow<ResultState<List<RealtimeBusResponse>>>
 	fun getDistance(): Flow<ResultState<List<RealtimeDistanceResponse>>>
-	fun updateBalance(pay: Double, userId: String): Flow<ResultState<String>>
+	fun updateBalance(pay: Double, from: String, to: String): Flow<ResultState<String>>
 	fun submitPayment(
 		payment: RealtimePaymentResponse.PaymentResponse,
 		from: String,

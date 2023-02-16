@@ -113,8 +113,8 @@ class DBRepository @Inject constructor(
 						it.value
 					}
 					notificationService.showNotification(
-						"Payment ${payment[4]}",
-						"Your payment of ${payment[3]} taka from ${payment[1]} to ${payment[5]} has been ${payment[4]}",
+						"Payment ${payment[5]}",
+						"Your payment of ${payment[4]} taka from ${payment[2]} to ${payment[6]} has been ${payment[5]}",
 					)
 				}
 				
@@ -308,15 +308,16 @@ class DBRepository @Inject constructor(
 		}
 	}
 	
-	override fun updateBalance(pay: Double, userId: String): Flow<ResultState<String>> =
+	override fun updateBalance(pay: Double, from: String, to: String): Flow<ResultState<String>> =
 		callbackFlow {
-			Log.d("entered", "entered")
 			trySend(ResultState.Loading)
 			val paymentTransaction = object : Transaction.Handler {
 				override fun doTransaction(currentData: MutableData): Transaction.Result {
-					Log.i("firebase payment", "Updating balance for $userId")
 					val currentValue = currentData.getValue(RealtimeUserResponse.UserResponse::class.java)
-					currentValue?.balance = currentValue?.balance?.plus(pay)!!
+					if (currentValue!!.userId == from)
+						currentValue.balance = currentValue.balance.plus(pay)
+					else
+						currentValue.balance = currentValue.balance.plus(-pay)
 					currentData.value = currentValue
 					return Transaction.success(currentData)
 				}
@@ -347,12 +348,18 @@ class DBRepository @Inject constructor(
 				}
 				
 			}
-			db.child("userList").orderByChild("userId").equalTo(userId)
+			db.child("userList").orderByChild("userId").equalTo(from)
 				.addListenerForSingleValueEvent(singleValueListener)
+			if (to.isNotEmpty())
+				db.child("userList").orderByChild("userId").equalTo(to)
+					.addListenerForSingleValueEvent(singleValueListener)
 //			db.child("userList").runTransaction(paymentTransaction)
 			awaitClose {
-				db.child("userList").orderByChild("userId").equalTo(userId)
+				db.child("userList").orderByChild("userId").equalTo(from)
 					.removeEventListener(singleValueListener)
+				if (to.isNotEmpty())
+					db.child("userList").orderByChild("userId").equalTo(to)
+						.removeEventListener(singleValueListener)
 				close()
 			}
 		}

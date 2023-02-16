@@ -5,7 +5,6 @@ package com.example.buspayment.screens.user
 import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
-import android.util.Log
 import android.util.Size
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -38,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,6 +67,7 @@ import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.funtions.QrCodeAnalysis
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
@@ -74,6 +76,7 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @Composable
@@ -85,13 +88,15 @@ fun ScanScreen(
 	val distance = viewModel.distRes.value
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
-	var bus by remember { mutableStateOf("") }
 	var user by remember { mutableStateOf(listOf<User>()) }
+//	var bus by remember { mutableStateOf(listOf<RealtimeBusResponse.BusResponse>()) }
+//	var bus: RealtimeBusResponse.BusResponse? by remember
+	var bus by remember { mutableStateOf(RealtimeBusResponse.BusResponse()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(listOf()).value
 	var code by remember { mutableStateOf("") }
-	var busName by remember { mutableStateOf("") }
+	var person by remember { mutableStateOf(1f) }
 	var isExpanded by remember { mutableStateOf(false) }
 	var isToExpanded by remember { mutableStateOf(false) }
 	val lifeCycleOwner = LocalLifecycleOwner.current
@@ -99,9 +104,9 @@ fun ScanScreen(
 	val toList = mutableListOf<String>()
 	var fromPrice by remember { mutableStateOf(0.0) }
 	var toPrice by remember { mutableStateOf<Double>(0.0) }
-	var price = 0.0
+	var price by remember { mutableStateOf(0.0) }
 	if (fromPrice > 0 && toPrice > 0) {
-		price = abs((fromPrice - toPrice) * 2.5)
+		price = abs((fromPrice - toPrice) * 2.5) * (person.toInt())
 	}
 	var selectedFrom by remember { mutableStateOf("") }
 	val busList = mutableListOf<String>()
@@ -116,7 +121,7 @@ fun ScanScreen(
 	LaunchedEffect(code) {
 		buses.bus.map { item ->
 			if (code == item.bus!!.id) {
-				busName = item.bus.name
+				bus = item.bus
 			}
 		}
 	}
@@ -133,7 +138,6 @@ fun ScanScreen(
 			if (selectedTo == item.dist.name) {
 				toPrice = item.dist.value
 			}
-			Log.d("Check price", "$fromPrice $toPrice $fromPrice-$toPrice")
 		}
 	}
 	var initialLocation = LocationServices.getFusedLocationProviderClient(context)
@@ -168,7 +172,7 @@ fun ScanScreen(
 		verticalArrangement = Arrangement.Center,
 		modifier = Modifier.fillMaxSize()
 	) {
-		if (busName.isNotEmpty()) {
+		if (bus.name.isNotEmpty()) {
 			Card(
 				modifier = Modifier
 					.width(300.dp)
@@ -176,10 +180,10 @@ fun ScanScreen(
 			) {
 				Column(modifier = Modifier.padding(20.dp, 10.dp)) {
 					Text(
-						text = code,
+						text = bus.name,
 						style = Typography.headlineLarge,
 					)
-					Text(text = "From 'Chandra' to 'Mirpur'")
+					Text(text = "From '${bus.startAddress}' to '${bus.endAddress}'")
 					Text(text = "Rate per kilometer: 2.50 taka")
 					Column(Modifier.padding(20.dp)) {
 						Row {
@@ -256,6 +260,20 @@ fun ScanScreen(
 							}
 							
 						}
+						Row(modifier = Modifier.fillMaxWidth()) {
+							Text(text = "${person.roundToInt()}")
+							Slider(
+								value = person,
+								onValueChange = {
+									person = it
+								},
+								steps = 2,
+								valueRange = 1f..4f,
+								thumb = {
+									Icon(imageVector = Icons.Filled.Person, contentDescription = "", tint = Color.Red)
+								}
+							)
+						}
 					}
 				}
 				Column(
@@ -274,13 +292,13 @@ fun ScanScreen(
 										fromUser = user[0].email.substringBefore("@"),
 										toUser = code,
 										paid = price,
-										bus = busName,
+										bus = bus.name,
 										code = Random.nextInt(1000, 10000).toString()
-//										code = java.util.Random().nextInt(9999 - 1001) + 1000.toString(),
 									), from = user[0].email.substringBefore("@"), to = code
 								).collect { response ->
 									when (response) {
 										is ResultState.Success -> {
+											Toast.makeText(context, "Payment successful", Toast.LENGTH_SHORT).show()
 											navController.navigate(Screens.UHome.route)
 										}
 										
@@ -293,15 +311,13 @@ fun ScanScreen(
 								}
 							}
 							scope.launch(Dispatchers.Main) {
-								viewModel.updateBalance(-price, user[0].email.substringBefore("@"))
+								viewModel.updateBalance(-price, user[0].email.substringBefore("@"), code)
 									.collect { response ->
 										when (response) {
 											is ResultState.Success -> {
-												Toast.makeText(context, "Payment successful", Toast.LENGTH_SHORT).show()
 											}
 											
 											is ResultState.Failure -> {
-												Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show()
 											}
 											
 											is ResultState.Loading -> {}
@@ -317,7 +333,9 @@ fun ScanScreen(
 			}
 		} else {
 			if (hasCameraPermission) {
-				Column {
+				Column(
+					modifier = Modifier.fillMaxSize()
+				) {
 					Row(
 						Modifier
 							.fillMaxWidth()
@@ -334,12 +352,7 @@ fun ScanScreen(
 							)
 						}
 						Text("Scan for Bus", style = MaterialTheme.typography.headlineSmall)
-						Row {
-							Text(
-								text = "",
-							)
-							
-						}
+						Text("")
 					}
 					AndroidView(
 						factory = { context ->
@@ -362,7 +375,6 @@ fun ScanScreen(
 								ContextCompat.getMainExecutor(context),
 								QrCodeAnalysis { result ->
 									code = result
-									bus = code
 //									scope.launch(Dispatchers.Main) {
 //										if (buses.bus.isNotEmpty()) {
 //											bus = buses.bus.filter { item -> item.bus!!.id == code }[0].bus!!.name
@@ -390,8 +402,18 @@ fun ScanScreen(
 							)
 							.clip(RoundedCornerShape(40.dp))
 					)
+					if (code.isNotEmpty() && bus.name.isEmpty())
+						Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+							Text(
+								text = "Invalid QR Code",
+								style = MaterialTheme.typography.headlineMedium,
+								color = Color.Red
+							)
+							
+						}
 				}
 			}
 		}
 	}
 }
+

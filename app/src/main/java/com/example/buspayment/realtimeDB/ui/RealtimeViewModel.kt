@@ -196,7 +196,7 @@ class RealtimeViewModel @Inject constructor(
 	fun updatePayment(email: String, payment: RealtimePaymentResponse) =
 		repo.updatePayment(email, payment)
 	
-	fun updateBalance(pay: Double, userId: String) = repo.updateBalance(pay, userId)
+	fun updateBalance(pay: Double, from: String, to: String) = repo.updateBalance(pay, from, to)
 }
 
 data class UserState(

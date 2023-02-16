@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.example.buspayment.screens.conductor
 
 import android.app.Application
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -89,7 +92,7 @@ fun PaymentListScreen(
 							"@"
 						)
 					}
-				LazyColumn() {
+				LazyColumn(reverseLayout = true) {
 					items(
 						paymentList,
 						key = {
@@ -141,6 +144,7 @@ fun PaymentListRow(
 									RealtimePaymentResponse(
 										payment = RealtimePaymentResponse.PaymentResponse(
 											fromUser = itemState.payment.fromUser,
+											code = itemState.payment.code,
 											status = "Accepted",
 											toUser = itemState.payment.toUser,
 											from = itemState.payment.from,
@@ -176,6 +180,7 @@ fun PaymentListRow(
 									RealtimePaymentResponse(
 										payment = RealtimePaymentResponse.PaymentResponse(
 											fromUser = itemState.payment.fromUser,
+											code = itemState.payment.code,
 											status = "Rejected",
 											toUser = itemState.payment.toUser,
 											from = itemState.payment.from,

@@ -83,7 +83,7 @@ fun RechargeScreen(
 					.clickable {
 						scope.launch {
 							viewModel
-								.updateBalance(50.0, user[0].email.substringBefore("@"))
+								.updateBalance(50.0, user[0].email.substringBefore("@"), "")
 								.collect { response ->
 									when (response) {
 										is ResultState.Success -> {
@@ -118,7 +118,7 @@ fun RechargeScreen(
 					.clickable {
 						scope.launch {
 							viewModel
-								.updateBalance(100.0, user[0].email.substringBefore("@"))
+								.updateBalance(100.0, user[0].email.substringBefore("@"), "")
 								.collect { response ->
 									when (response) {
 										is ResultState.Success -> {
@@ -154,7 +154,7 @@ fun RechargeScreen(
 					.clickable {
 						scope.launch {
 							viewModel
-								.updateBalance(500.0, user[0].email.substringBefore("@"))
+								.updateBalance(500.0, user[0].email.substringBefore("@"), "")
 								.collect { response ->
 									when (response) {
 										is ResultState.Success -> {

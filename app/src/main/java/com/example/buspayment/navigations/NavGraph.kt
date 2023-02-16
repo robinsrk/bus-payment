@@ -1,9 +1,10 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package com.example.buspayment.navigations
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import com.example.buspayment.screens.admin.AddBusScreen
 import com.example.buspayment.screens.admin.AdminHomeScreen
 import com.example.buspayment.screens.admin.ManageAccountsScreen
@@ -18,27 +19,14 @@ import com.example.buspayment.screens.user.RechargeScreen
 import com.example.buspayment.screens.user.ScanScreen
 import com.example.buspayment.screens.user.UserHistoryScreen
 import com.example.buspayment.screens.user.UserHomeScreen
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
-//	val context = LocalContext.current
-//	val mUserViewModel: UserViewModel =
-//		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
-//	var email = mUserViewModel.readUser.observeAsState(listOf()).value
-//	if (email.isNotEmpty()) {
-//		Credentials().setEmail(email[0].email.toString())
-//		navController.navigate(Screens.Home.route) {
-//			popUpTo(0)
-//		}
-//	}
-	NavHost(
+	AnimatedNavHost(
 		navController,
 		startDestination = Screens.Splash.route
-//		startDestination = if (
-//			Credentials().getEmail()
-//				.isNotEmpty()
-//		) Screens.Home.route
-//		else Screens.Login.route
 	) {
 		composable(
 			route = Screens.Login.route

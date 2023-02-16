@@ -81,7 +81,7 @@ fun UserHistoryScreen(
 		}
 		Column {
 			if (history.payment.isNotEmpty()) {
-				LazyColumn() {
+				LazyColumn(reverseLayout = true) {
 					items(
 						history.payment,
 						key = { it.key!! }
