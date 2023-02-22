@@ -58,7 +58,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(
+fun UserRegistrationScreen(
 	navController: NavController,
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
@@ -281,8 +281,8 @@ fun RegisterScreen(
 					Text(text = if (click) "Cancel" else "Register")
 				}
 				Text(
-					modifier = Modifier.clickable { navController.popBackStack() },
-					text = "Login with existing account"
+					modifier = Modifier.clickable { navController.navigate(Screens.regCon.route) },
+					text = "Sign up as Conductor"
 				)
 			}
 			Surface(modifier = Modifier.heightIn(min = 50.dp)) {

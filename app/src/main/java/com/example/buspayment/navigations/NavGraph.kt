@@ -6,13 +6,17 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.example.buspayment.screens.admin.AddBusScreen
+import com.example.buspayment.screens.admin.AddLocationByMap
+import com.example.buspayment.screens.admin.AddLocationScreen
 import com.example.buspayment.screens.admin.AdminHomeScreen
+import com.example.buspayment.screens.admin.LocationsScreen
 import com.example.buspayment.screens.admin.ManageAccountsScreen
 import com.example.buspayment.screens.admin.ManageBusScreen
 import com.example.buspayment.screens.common.LoginScreen
-import com.example.buspayment.screens.common.RegisterScreen
 import com.example.buspayment.screens.common.SplashScreen
+import com.example.buspayment.screens.common.UserRegistrationScreen
 import com.example.buspayment.screens.conductor.ConductorHomeScreen
+import com.example.buspayment.screens.conductor.ConductorQRCode
 import com.example.buspayment.screens.conductor.PaymentListScreen
 import com.example.buspayment.screens.user.ProfileScreen
 import com.example.buspayment.screens.user.RechargeScreen
@@ -34,9 +38,9 @@ fun SetupNavGraph(navController: NavHostController) {
 			LoginScreen(navController)
 		}
 		composable(
-			route = Screens.Register.route
+			route = Screens.regUser.route
 		) {
-			RegisterScreen(navController)
+			UserRegistrationScreen(navController)
 		}
 		composable(
 			route = Screens.UHome.route
@@ -98,6 +102,26 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.ABus.route
 		) {
 			AddBusScreen(navController)
+		}
+		composable(
+			route = Screens.MQR.route
+		) {
+			ConductorQRCode(navController)
+		}
+		composable(
+			route = Screens.MDist.route
+		) {
+			LocationsScreen(navController)
+		}
+		composable(
+			route = Screens.ADist.route
+		) {
+			AddLocationScreen(navController)
+		}
+		composable(
+			route = Screens.map.route
+		) {
+			AddLocationByMap(navController)
 		}
 	}
 }

@@ -251,15 +251,6 @@ class DBRepository @Inject constructor(
 				.addOnFailureListener {
 					trySend(ResultState.Failure(it))
 				}
-			db.child("conductorPaymentList").child(to).push().setValue(
-				payment
-			).addOnCompleteListener {
-				if (it.isSuccessful)
-					trySend(ResultState.Success("Payment successful"))
-			}
-				.addOnFailureListener {
-					trySend(ResultState.Failure(it))
-				}
 			awaitClose {
 				close()
 			}
@@ -270,6 +261,22 @@ class DBRepository @Inject constructor(
 			trySend(ResultState.Loading)
 			db.child("busList").push().setValue(
 				bus
+			).addOnCompleteListener {
+				if (it.isSuccessful)
+					trySend(ResultState.Success("Data inserted successfully"))
+			}.addOnFailureListener {
+				trySend(ResultState.Failure(it))
+			}
+			awaitClose {
+				close()
+			}
+		}
+	
+	override fun addDistance(dist: RealtimeDistanceResponse.DistanceResponse): Flow<ResultState<String>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			db.child("distance").push().setValue(
+				dist
 			).addOnCompleteListener {
 				if (it.isSuccessful)
 					trySend(ResultState.Success("Data inserted successfully"))

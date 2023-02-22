@@ -32,6 +32,7 @@ class RealtimeViewModel @Inject constructor(
 	private val _userHisRes: MutableState<PaymentState> = mutableStateOf(PaymentState())
 	val userHisRes: State<PaymentState> = _userHisRes
 	fun addUser(users: RealtimeUserResponse.UserResponse) = repo.addUser(users)
+	fun addDistance(dist: RealtimeDistanceResponse.DistanceResponse) = repo.addDistance(dist)
 	fun submitPayment(
 		payment: RealtimePaymentResponse.PaymentResponse,
 		from: String,
@@ -98,13 +99,13 @@ class RealtimeViewModel @Inject constructor(
 					}
 					
 					is ResultState.Failure -> {
-						_busRes.value = BusState(
+						_distRes.value = DistState(
 							error = it.msg.toString()
 						)
 					}
 					
 					is ResultState.Loading -> {
-						_busRes.value = BusState(
+						_distRes.value = DistState(
 							isLoading = true
 						)
 					}

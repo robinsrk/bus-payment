@@ -71,6 +71,9 @@ fun AdminHomeScreen(navController: NavController) {
 			OutlinedButton(onClick = { navController.navigate(Screens.MBus.route) }) {
 				Text(text = "Manager buses")
 			}
+			OutlinedButton(onClick = { navController.navigate(Screens.MDist.route) }) {
+				Text(text = "Manager locations")
+			}
 		}
 		
 	}

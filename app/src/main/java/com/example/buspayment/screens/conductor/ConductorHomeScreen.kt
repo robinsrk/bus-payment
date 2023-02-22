@@ -136,6 +136,9 @@ fun ConductorHomeScreen(
 			OutlinedButton(onClick = { navController.navigate(Screens.PList.route) }) {
 				Text(text = "Payment list")
 			}
+			OutlinedButton(onClick = { navController.navigate(Screens.MQR.route) }) {
+				Text(text = "My QR Code")
+			}
 		}
 		
 	}

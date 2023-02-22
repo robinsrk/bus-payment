@@ -39,6 +39,7 @@ import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.utils.ResultState
+import com.stripe.android.PaymentConfiguration
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,6 +48,10 @@ fun RechargeScreen(
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	val context = LocalContext.current
+	PaymentConfiguration.init(
+		context,
+		"pk_test_51Iem6QBbLdAJxHXGLSIrAQ3lqaEGBB3b4ZX7h0FsY21lxW4eIv3tbGeSsuFuKeHocD0nS0NpQGvGvRVe00VazD0N00mTPzU5nw"
+	)
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))

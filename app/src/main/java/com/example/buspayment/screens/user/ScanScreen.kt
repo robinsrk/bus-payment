@@ -5,6 +5,8 @@ package com.example.buspayment.screens.user
 import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
 import android.util.Size
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,21 +27,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +67,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,13 +81,20 @@ import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.ui.theme.Typography
 import com.example.buspayment.utils.ResultState
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
+// api TIP6644qAAr1r0mv_b73cIoi3UYZ3TLUS2B39A4jnLbJJ959q2Fi8Z6Bf7PM26WL
 @Composable
 fun ScanScreen(
 	navController: NavController,
@@ -89,15 +105,15 @@ fun ScanScreen(
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
 	var user by remember { mutableStateOf(listOf<User>()) }
-//	var bus by remember { mutableStateOf(listOf<RealtimeBusResponse.BusResponse>()) }
-//	var bus: RealtimeBusResponse.BusResponse? by remember
 	var bus by remember { mutableStateOf(RealtimeBusResponse.BusResponse()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(listOf()).value
 	var code by remember { mutableStateOf("") }
+	var location by remember { mutableStateOf("") }
 	var person by remember { mutableStateOf(1f) }
-	var isExpanded by remember { mutableStateOf(false) }
+	var loading by remember { mutableStateOf(false) }
+	var isFromExpanded by remember { mutableStateOf(false) }
 	var isToExpanded by remember { mutableStateOf(false) }
 	val lifeCycleOwner = LocalLifecycleOwner.current
 	val fromList = mutableListOf<String>()
@@ -105,6 +121,14 @@ fun ScanScreen(
 	var fromPrice by remember { mutableStateOf(0.0) }
 	var toPrice by remember { mutableStateOf<Double>(0.0) }
 	var price by remember { mutableStateOf(0.0) }
+	val initialLocation = LocationServices.getFusedLocationProviderClient(context)
+//	var rs: Location? = null
+	
+	val xpoints = mutableListOf<LatLng>()
+	xpoints.add(LatLng(23.955673, 90.288608))
+	xpoints.add(LatLng(23.955595, 90.289075))
+	xpoints.add(LatLng(23.955165, 90.289126))
+	xpoints.add(LatLng(23.955121, 90.288482))
 	if (fromPrice > 0 && toPrice > 0) {
 		price = abs((fromPrice - toPrice) * 2.5) * (person.toInt())
 	}
@@ -118,11 +142,74 @@ fun ScanScreen(
 			toList.add(item.dist.name)
 		}
 	}
+	LaunchedEffect(key1 = true) {
+	}
 	LaunchedEffect(code) {
-		buses.bus.map { item ->
-			if (code == item.bus!!.id) {
-				bus = item.bus
+		if (code.isNotEmpty()) {
+			loading = true
+			buses.bus.map { item ->
+				if (code == item.bus!!.id) {
+					bus = item.bus
+				}
 			}
+			when {
+				ActivityCompat.checkSelfPermission(
+					context,
+					Manifest.permission.ACCESS_FINE_LOCATION
+				) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+					context,
+					Manifest.permission.ACCESS_COARSE_LOCATION
+				) != PackageManager.PERMISSION_GRANTED -> {
+					// TODO: Consider calling
+					//    ActivityCompat#requestPermissions
+					// here to request the missing permissions, and then overriding
+					//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+					//                                          int[] grantResults)
+					// to handle the case where the user grants the permission. See the documentation
+					// for ActivityCompat#requestPermissions for more details.
+				}
+			}
+			initialLocation.getCurrentLocation(
+				LocationRequest.PRIORITY_HIGH_ACCURACY,
+				object : CancellationToken() {
+					override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+						CancellationTokenSource().token
+					
+					override fun isCancellationRequested() = false
+				})
+				.addOnSuccessListener { location: Location? ->
+					if (location == null)
+						Toast.makeText(context, "Cannot get location.", Toast.LENGTH_SHORT).show()
+					else {
+						Toast.makeText(context, "Location updated", Toast.LENGTH_SHORT).show()
+					}
+					
+				}
+			initialLocation.lastLocation.addOnCompleteListener { task ->
+				val rs = task.result
+				if (rs != null) {
+					distance.dist.forEach { item ->
+						val points = mutableListOf<LatLng>()
+						points.add(LatLng(item.dist!!.lat1, item.dist.lng1))
+						points.add(LatLng(item.dist.lat2, item.dist.lng2))
+						points.add(LatLng(item.dist.lat3, item.dist.lng3))
+						points.add(LatLng(item.dist.lat4, item.dist.lng4))
+						points.forEach {
+							Log.d("location test", "${it.latitude},${it.longitude} ${points.size}")
+						}
+						val test = PolyUtil.containsLocation(rs.latitude, rs.longitude, points, true)
+						Log.d("location test", "${rs.latitude},${rs.longitude} ${test}")
+						if (test) {
+							Log.d("location test", rs.longitude.toString())
+							location = item.dist.name
+							selectedFrom = item.dist.name
+						}
+//			Log.d("test location", "$test")
+//			location = "${rs.latitude} ${rs.longitude} $test"
+					}
+				}
+			}
+			loading = false
 		}
 	}
 	if (buses.bus.isNotEmpty()) {
@@ -140,8 +227,7 @@ fun ScanScreen(
 			}
 		}
 	}
-	var initialLocation = LocationServices.getFusedLocationProviderClient(context)
-	val icon = if (isExpanded)
+	val icon = if (isToExpanded)
 		Icons.Filled.KeyboardArrowUp
 	else
 		Icons.Filled.KeyboardArrowDown
@@ -166,13 +252,30 @@ fun ScanScreen(
 	)
 	LaunchedEffect(key1 = true) {
 		launcher.launch(Manifest.permission.CAMERA)
+		when {
+			ActivityCompat.checkSelfPermission(
+				context,
+				Manifest.permission.ACCESS_FINE_LOCATION
+			) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+				context,
+				Manifest.permission.ACCESS_COARSE_LOCATION
+			) != PackageManager.PERMISSION_GRANTED -> {
+				// TODO: Consider calling
+				//    ActivityCompat#requestPermissions
+				// here to request the missing permissions, and then overriding
+				//   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+				//                                          int[] grantResults)
+				// to handle the case where the user grants the permission. See the documentation
+				// for ActivityCompat#requestPermissions for more details.
+			}
+		}
 	}
 	Column(
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center,
 		modifier = Modifier.fillMaxSize()
 	) {
-		if (bus.name.isNotEmpty()) {
+		if (bus.name.isNotEmpty() && !loading) {
 			Card(
 				modifier = Modifier
 					.width(300.dp)
@@ -190,44 +293,51 @@ fun ScanScreen(
 							OutlinedTextField(
 								value = selectedFrom,
 								onValueChange = { selectedFrom = it },
+								colors = TextFieldDefaults.outlinedTextFieldColors(
+									disabledTextColor = LocalContentColor.current.copy(LocalContentAlpha.current),
+									disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high),
+									disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(ContentAlpha.high)
+								),
 								enabled = false,
 								modifier = Modifier
 									.fillMaxWidth()
 									.onGloballyPositioned { coordinates ->
 										//This value is used to assign to the DropDown the same width
 										textFieldSize = coordinates.size.toSize()
-									}
-									.clickable { isExpanded = !isExpanded },
-								
-								label = { Text("From") },
+									},
 								trailingIcon = {
 									Icon(icon, "contentDescription",
-										Modifier.clickable { isExpanded = !isExpanded })
-								}
+										Modifier.clickable { isFromExpanded = !isFromExpanded })
+								},
+								label = { Text("From") },
 							)
 							DropdownMenu(
-								expanded = isExpanded,
-								onDismissRequest = { isExpanded = false },
+								expanded = isFromExpanded,
+								onDismissRequest = { isFromExpanded = false },
 								modifier = Modifier
 									.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
 							) {
-								fromList.forEach { label ->
+								toList.forEach { label ->
 									DropdownMenuItem(
 										onClick = {
 											selectedFrom = label
-											isExpanded = !isExpanded
+											isFromExpanded = !isFromExpanded
 										},
 										text = { Text(text = label) }
 									)
 								}
 							}
-							
 						}
 						Row {
 							OutlinedTextField(
 								value = selectedTo,
 								onValueChange = { selectedTo = it },
 								enabled = false,
+								colors = TextFieldDefaults.outlinedTextFieldColors(
+									disabledTextColor = LocalContentColor.current.copy(LocalContentAlpha.current),
+									disabledBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high),
+									disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(ContentAlpha.high)
+								),
 								modifier = Modifier
 									.fillMaxWidth()
 									.onGloballyPositioned { coordinates ->
@@ -329,9 +439,29 @@ fun ScanScreen(
 					) {
 						Text(text = "Proceed to payment $price taka")
 					}
+					Button(onClick = {
+						initialLocation.lastLocation.addOnCompleteListener { task ->
+							val rs = task.result
+							if (rs != null) {
+								val test = PolyUtil.containsLocation(rs.latitude, rs.longitude, xpoints, true)
+								location = "${rs.latitude} ${rs.longitude} $test"
+							}
+						}
+					}) {
+						Text(text = "Get Location")
+					}
+					Text(text = location)
 				}
 			}
-		} else {
+		} else if (loading) {
+			CircularProgressIndicator()
+		}
+//		else if (!loading && bus.name.isNotEmpty() && location.isEmpty()) {
+//			Column {
+//				Text(text = "Not available in your location")
+//			}
+//		}
+		else {
 			if (hasCameraPermission) {
 				Column(
 					modifier = Modifier.fillMaxSize()
@@ -402,7 +532,7 @@ fun ScanScreen(
 							)
 							.clip(RoundedCornerShape(40.dp))
 					)
-					if (code.isNotEmpty() && bus.name.isEmpty())
+					if (code.isNotEmpty() && bus.name.isEmpty() && !loading)
 						Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
 							Text(
 								text = "Invalid QR Code",
@@ -416,4 +546,3 @@ fun ScanScreen(
 		}
 	}
 }
-

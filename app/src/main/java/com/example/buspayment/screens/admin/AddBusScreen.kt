@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(
+	ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+	ExperimentalMaterial3Api::class
+)
 
 package com.example.buspayment.screens.admin
 
@@ -45,6 +48,9 @@ fun AddBusScreen(
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	var busName by remember { mutableStateOf("") }
+	var email by remember { mutableStateOf("") }
+	var userName by remember { mutableStateOf("") }
+	var id by remember { mutableStateOf("") }
 	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
 	Column {
@@ -70,24 +76,54 @@ fun AddBusScreen(
 			verticalArrangement = Arrangement.Center
 		) {
 			OutlinedTextField(
+				email,
+				{ text ->
+					email = text
+				},
+				label = {
+					Text(text = "Email address")
+				}
+			)
+			OutlinedTextField(
+				userName,
+				{ text ->
+					userName = text
+				},
+				label = {
+					Text(text = "User name")
+				}
+			)
+			OutlinedTextField(
+				id,
+				{ text ->
+					id = text
+				},
+				label = {
+					Text(text = "Bus ID")
+				}
+			)
+			OutlinedTextField(
 				busName,
 				{ text ->
 					busName = text
 				},
+				label = {
+					Text(text = "Bus name")
+				}
 			)
 			Button(onClick = {
 				scope.launch(Dispatchers.Main) {
 					viewModel.addBus(
 						RealtimeBusResponse.BusResponse(
 							name = busName,
-							"",
+							id,
 							"Chandra",
 							"Mirpur"
 						)
 					).collect { response ->
 						when (response) {
 							is ResultState.Success -> {
-								Toast.makeText(context, "User created", Toast.LENGTH_LONG).show()
+								Toast.makeText(context, "New bus account created", Toast.LENGTH_LONG).show()
 							}
 							
 							is ResultState.Failure -> {
