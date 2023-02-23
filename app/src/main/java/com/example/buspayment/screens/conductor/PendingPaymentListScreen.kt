@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
@@ -82,7 +83,11 @@ fun PaymentListScreen(
 				}, imageVector = Icons.Filled.ArrowBack, contentDescription = "Back button"
 			)
 			Text(text = "Pending payments", style = MaterialTheme.typography.headlineSmall)
-			Text(text = "", style = MaterialTheme.typography.headlineSmall)
+			Icon(
+				modifier = Modifier.clickable {
+					navController.popBackStack()
+				}, imageVector = Icons.Filled.ArrowForward, contentDescription = "Back button"
+			)
 		}
 		Column {
 			if (res.payment.isNotEmpty()) {
