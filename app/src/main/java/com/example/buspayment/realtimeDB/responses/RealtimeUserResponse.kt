@@ -11,7 +11,6 @@ data class RealtimeUserResponse(
 		val email: String = "",
 		val phone: String = "",
 		var balance: Double = 0.0,
-		val pendingPayment: Double = 0.0,
 		val role: String = ""
 	)
 	

@@ -6,6 +6,8 @@ data class RealtimePaymentResponse(
 ) {
 	data class PaymentResponse(
 		val status: String? = "",
+		val time: String? = "",
+		val passNum: Int? = 0,
 		val fromUser: String? = "",
 		val toUser: String? = "",
 		val from: String? = "",

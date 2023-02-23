@@ -12,6 +12,7 @@ import com.example.buspayment.screens.admin.AdminHomeScreen
 import com.example.buspayment.screens.admin.LocationsScreen
 import com.example.buspayment.screens.admin.ManageAccountsScreen
 import com.example.buspayment.screens.admin.ManageBusScreen
+import com.example.buspayment.screens.common.ConductorRegistrationScreen
 import com.example.buspayment.screens.common.LoginScreen
 import com.example.buspayment.screens.common.SplashScreen
 import com.example.buspayment.screens.common.UserRegistrationScreen
@@ -41,6 +42,11 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.regUser.route
 		) {
 			UserRegistrationScreen(navController)
+		}
+		composable(
+				route = Screens.regCon.route
+				) {
+			ConductorRegistrationScreen(navController)
 		}
 		composable(
 			route = Screens.UHome.route

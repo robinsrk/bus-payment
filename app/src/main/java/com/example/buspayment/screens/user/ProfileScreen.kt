@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -34,22 +36,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
+import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(
+	navController: NavController,
+	viewModel: RealtimeViewModel = hiltViewModel()
+) {
+	val userResponse = viewModel.userRes.value
 	val context = LocalContext.current
 	var email by remember { mutableStateOf("") }
+	var userName by remember { mutableStateOf("") }
+	var phone by remember { mutableStateOf("") }
+	var id by remember { mutableStateOf("") }
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
 	user = mUserViewModel.readUser.observeAsState(emptyList()).value
 	if (user.isNotEmpty()) {
 		email = user[0].email
+	}
+	LaunchedEffect(user){
+		if(email.isNotEmpty())
+		viewModel.getUser(email)
+	}
+	LaunchedEffect(userResponse){
+		if(userResponse.user.isNotEmpty()){
+			userName = userResponse.user[0].user!!.userName
+			phone = userResponse.user[0].user!!.phone
+			id = userResponse.user[0].user!!.userId
+		}
 	}
 	Box(
 		Modifier.fillMaxSize(),
@@ -87,98 +110,113 @@ fun ProfileScreen(navController: NavController) {
 				)
 			}
 			Box(
-				Modifier.fillMaxWidth()
+				Modifier.fillMaxWidth(),
+				contentAlignment = Alignment.Center
 			) {
-				Column(
-					modifier = Modifier
-						.padding(20.dp)
-				) {
-					Row(
-						Modifier
-							.fillMaxWidth()
-							.padding(5.dp),
-						horizontalArrangement = Arrangement.SpaceBetween,
-						verticalAlignment = Alignment.CenterVertically
+				if(userResponse.isLoading){
+					CircularProgressIndicator()
+				}
+				else {
+					Column(
+						modifier = Modifier
+							.padding(20.dp)
 					) {
-						Text(text = "Email: ")
-						OutlinedTextField(
-							value = email,
-							onValueChange = { text -> email = text },
-						)
-					}
-					Row(
-						Modifier
-							.fillMaxWidth()
-							.padding(5.dp),
-						horizontalArrangement = Arrangement.SpaceBetween,
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Text(text = "Name: ")
-						OutlinedTextField(
-							value = "User Name",
-							onValueChange = { }
-						)
-					}
-					Row(
-						Modifier
-							.fillMaxWidth()
-							.padding(5.dp),
-						horizontalArrangement = Arrangement.SpaceBetween,
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Text(text = "Password: ")
-						OutlinedTextField(
-							value = "",
-							onValueChange = { }
-						)
-					}
-					Row(
-						Modifier
-							.fillMaxWidth()
-							.padding(5.dp),
-						horizontalArrangement = Arrangement.SpaceBetween,
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Text(text = "Student ID: ")
-						OutlinedTextField(
-							value = "",
-							onValueChange = { }
-						)
-					}
-					Row(
-						Modifier
-							.fillMaxWidth()
-							.padding(5.dp),
-						horizontalArrangement = Arrangement.SpaceBetween,
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Text(text = "Confirm Password: ")
-						OutlinedTextField(
-							value = "",
-							onValueChange = { },
-						)
-					}
-					Row(
-						Modifier.fillMaxWidth(),
-						horizontalArrangement = Arrangement.Center,
-					) {
-						OutlinedButton(
-							onClick = {
-								navController.popBackStack()
-							},
-							Modifier.padding(10.dp)
+						Row(
+							Modifier
+								.fillMaxWidth()
+								.padding(5.dp),
+							horizontalArrangement = Arrangement.SpaceBetween,
+							verticalAlignment = Alignment.CenterVertically
 						) {
-							Text(text = "Cancel")
+							Text(text = "Email: ")
+							OutlinedTextField(
+								value = email,
+								onValueChange = { text -> email = text },
+							)
 						}
-						OutlinedButton(
-							onClick = {
-								Toast.makeText(context, "Success", Toast.LENGTH_LONG).show()
-							},
-							Modifier.padding(10.dp)
+						Row(
+							Modifier
+								.fillMaxWidth()
+								.padding(5.dp),
+							horizontalArrangement = Arrangement.SpaceBetween,
+							verticalAlignment = Alignment.CenterVertically
 						) {
-							Text(text = "Update")
+							Text(text = "Name: ")
+							OutlinedTextField(
+								value = userName,
+								onValueChange = { }
+							)
 						}
-						
+						Row(
+							Modifier
+								.fillMaxWidth()
+								.padding(5.dp),
+							horizontalArrangement = Arrangement.SpaceBetween,
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							Text(text = "User ID ")
+							OutlinedTextField(
+								value = id,
+								onValueChange = { }
+							)
+						}
+						Row(
+							Modifier
+								.fillMaxWidth()
+								.padding(5.dp),
+							horizontalArrangement = Arrangement.SpaceBetween,
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							Text(text = "Phone: ")
+							OutlinedTextField(
+								value = phone,
+								onValueChange = { }
+							)
+						}
+						Row(
+							Modifier
+								.fillMaxWidth()
+								.padding(5.dp),
+							horizontalArrangement = Arrangement.SpaceBetween,
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							Text(text = "Confirm Password: ")
+							OutlinedTextField(
+								value = "",
+								onValueChange = { },
+							)
+						}
+						Row(
+							Modifier.fillMaxWidth(),
+							horizontalArrangement = Arrangement.Center,
+						) {
+							OutlinedButton(
+								onClick = {
+									navController.popBackStack()
+								},
+								Modifier.padding(10.dp)
+							) {
+								Text(text = "Cancel")
+							}
+							OutlinedButton(
+								onClick = {
+									viewModel.updateUser(
+										RealtimeUserResponse(
+											RealtimeUserResponse.UserResponse(
+												userName = userName,
+												email = email,
+												userId = id,
+												phone = phone,
+											)
+										)
+									)
+								},
+								Modifier.padding(10.dp)
+							) {
+								Text(text = "Update")
+							}
+							
+						}
 					}
 				}
 			}

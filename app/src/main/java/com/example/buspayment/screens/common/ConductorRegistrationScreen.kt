@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.example.buspayment.screens.common
 
@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.BusAlert
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -50,6 +51,7 @@ import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
+import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.utils.ResultState
@@ -67,6 +69,7 @@ fun ConductorRegistrationScreen(
 	var email by remember { mutableStateOf("") }
 	var name by remember { mutableStateOf("") }
 	var num by remember { mutableStateOf("") }
+	var busType by remember { mutableStateOf("") }
 	var pass by remember { mutableStateOf("") }
 	var cpass by remember { mutableStateOf("") }
 	var error by remember { mutableStateOf("") }
@@ -134,6 +137,26 @@ fun ConductorRegistrationScreen(
 					bottom = 12.dp,
 				)
 			)
+			
+			OutlinedTextField(
+				value = busType,
+				onValueChange = { text -> busType = text },
+				label = {
+					Text(text = "Bus type")
+				},
+				leadingIcon = {
+					IconButton(onClick = { /*TODO*/ }) {
+						Icon(imageVector = Icons.Filled.BusAlert, contentDescription = "Email icon")
+					}
+				},
+				keyboardOptions = KeyboardOptions(
+					keyboardType = KeyboardType.Number,
+					imeAction = ImeAction.Next
+				),
+				modifier = Modifier.padding(
+					bottom = 12.dp,
+				)
+			)
 			OutlinedTextField(
 				value = email,
 				onValueChange = { text ->
@@ -156,25 +179,6 @@ fun ConductorRegistrationScreen(
 					bottom = 12.dp,
 				)
 			)
-//		OutlinedTextField(
-//			value = id,
-//			onValueChange = { text -> id = text },
-//			label = {
-//				Text(text = "Student ID (optional)")
-//			},
-//			leadingIcon = {
-//				IconButton(onClick = { /*TODO*/ }) {
-//					Icon(imageVector = Icons.Filled.Email, contentDescription = "Email icon")
-//				}
-//			},
-//			keyboardOptions = KeyboardOptions(
-//				keyboardType = KeyboardType.Email,
-//				imeAction = ImeAction.Next
-//			),
-//			modifier = Modifier.padding(
-//				bottom = 12.dp,
-//			)
-//		)
 			OutlinedTextField(
 				modifier = Modifier.padding(12.dp),
 				value = pass,
@@ -257,6 +261,23 @@ fun ConductorRegistrationScreen(
 														}
 														
 														is ResultState.Loading -> {}
+													}
+												}
+											}
+											scope.launch(Dispatchers.Main){
+												viewModel.addBus(
+													RealtimeBusResponse.BusResponse(
+														name = busType,
+														startAddress = "Chandra",
+														endAddress = "Mirpur",
+														id = email.substringBefore("@")
+													)
+												).collect { response ->
+													when(response){
+														is ResultState.Failure -> {}
+														ResultState.Loading -> {}
+														is ResultState.Success -> {
+														}
 													}
 												}
 											}

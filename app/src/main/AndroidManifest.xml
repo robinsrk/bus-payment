@@ -5,6 +5,9 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -41,10 +44,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_API_KEY" />
 
-        <activity
-            android:name=".screens.admin.MapsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_maps" />
         <!-- <activity -->
         <!-- android:name=".LoginActivity" -->
         <!-- android:exported="false" /> -->

@@ -130,7 +130,7 @@ fun PaymentListRow(
 					.padding(10.dp)
 			) {
 				Text(itemState.payment?.fromUser!!, style = MaterialTheme.typography.bodyLarge)
-				Text("Time")
+				Text(itemState.payment.time.toString())
 				Column(horizontalAlignment = Alignment.CenterHorizontally) {
 					Text(itemState.payment.paid!!.toString() + " Taka")
 					Text("${itemState.payment.from!!} -> ${itemState.payment.to!!}")

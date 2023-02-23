@@ -6,11 +6,13 @@ import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
@@ -90,11 +92,14 @@ import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 // api TIP6644qAAr1r0mv_b73cIoi3UYZ3TLUS2B39A4jnLbJJ959q2Fi8Z6Bf7PM26WL
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScanScreen(
 	navController: NavController,
@@ -104,6 +109,7 @@ fun ScanScreen(
 	val distance = viewModel.distRes.value
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
+	val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm"))
 	var user by remember { mutableStateOf(listOf<User>()) }
 	var bus by remember { mutableStateOf(RealtimeBusResponse.BusResponse()) }
 	val mUserViewModel: UserViewModel =
@@ -403,6 +409,8 @@ fun ScanScreen(
 										toUser = code,
 										paid = price,
 										bus = bus.name,
+										time = time,
+										passNum = person.toInt(),
 										code = Random.nextInt(1000, 10000).toString()
 									), from = user[0].email.substringBefore("@"), to = code
 								).collect { response ->
