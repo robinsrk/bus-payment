@@ -18,6 +18,7 @@ import com.example.buspayment.navigations.SetupNavGraph
 import com.example.buspayment.realtimeDB.repository.DBRepository
 import com.example.buspayment.ui.theme.BusPaymentTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.stripe.android.PaymentConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -28,6 +29,10 @@ class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		DBRepository.setContext(this)
+		PaymentConfiguration.init(
+			this,
+			"pk_test_51Iem6QBbLdAJxHXGLSIrAQ3lqaEGBB3b4ZX7h0FsY21lxW4eIv3tbGeSsuFuKeHocD0nS0NpQGvGvRVe00VazD0N00mTPzU5nw"
+		)
 		NotificationService(applicationContext).createNotificationChannel()
 		val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 		val activeNetworkInfo = connectivityManager.activeNetworkInfo

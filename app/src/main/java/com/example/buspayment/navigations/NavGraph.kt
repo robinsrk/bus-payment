@@ -20,6 +20,7 @@ import com.example.buspayment.screens.conductor.AllPaymentListScreen
 import com.example.buspayment.screens.conductor.ConductorHomeScreen
 import com.example.buspayment.screens.conductor.ConductorQRCode
 import com.example.buspayment.screens.conductor.PaymentListScreen
+import com.example.buspayment.screens.conductor.WithdrawScreen
 import com.example.buspayment.screens.user.ProfileScreen
 import com.example.buspayment.screens.user.RechargeScreen
 import com.example.buspayment.screens.user.ScanScreen
@@ -51,8 +52,8 @@ fun SetupNavGraph(navController: NavHostController) {
 			AllPaymentListScreen(navController)
 		}
 		composable(
-				route = Screens.regCon.route
-				) {
+			route = Screens.regCon.route
+		) {
 			ConductorRegistrationScreen(navController)
 		}
 		composable(
@@ -115,6 +116,11 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.ABus.route
 		) {
 			AddBusScreen(navController)
+		}
+		composable(
+			route = Screens.WD.route
+		) {
+			WithdrawScreen(navController)
 		}
 		composable(
 			route = Screens.MQR.route

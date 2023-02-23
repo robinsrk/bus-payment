@@ -4,6 +4,7 @@ import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
 import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeWithdrawResponse
 import com.example.buspayment.utils.ResultState
 import kotlinx.coroutines.flow.Flow
 
@@ -16,6 +17,10 @@ interface Repository {
 	fun getBus(): Flow<ResultState<List<RealtimeBusResponse>>>
 	fun getDistance(): Flow<ResultState<List<RealtimeDistanceResponse>>>
 	fun addDistance(dist: RealtimeDistanceResponse.DistanceResponse): Flow<ResultState<String>>
+	fun addWithdraw(wd: RealtimeWithdrawResponse.WithdrawResponse): Flow<ResultState<String>>
+	fun getWithdraw(): Flow<ResultState<List<RealtimeWithdrawResponse>>>
+	fun updateWithdraw(wd: RealtimeWithdrawResponse.WithdrawResponse): Flow<ResultState<String>>
+	
 	fun updateBalance(pay: Double, from: String, to: String): Flow<ResultState<String>>
 	fun submitPayment(
 		payment: RealtimePaymentResponse.PaymentResponse,

@@ -9,6 +9,7 @@ import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeDistanceResponse
 import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
+import com.example.buspayment.realtimeDB.responses.RealtimeWithdrawResponse
 import com.example.buspayment.utils.ResultState
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -113,8 +114,8 @@ class DBRepository @Inject constructor(
 						it.value
 					}
 					notificationService.showNotification(
-						"Payment ${payment[5]}",
-						"Your payment of ${payment[4]} taka from ${payment[2]} to ${payment[6]} has been ${payment[5]}",
+						"Payment ${payment[7]}",
+						"Your payment of ${payment[5]} taka from ${payment[3]} to ${payment[9]} has been ${payment[7]}",
 					)
 				}
 				
@@ -287,6 +288,54 @@ class DBRepository @Inject constructor(
 				close()
 			}
 		}
+	
+	override fun addWithdraw(wd: RealtimeWithdrawResponse.WithdrawResponse): Flow<ResultState<String>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			db.child("withdraw").push().setValue(
+				wd
+			).addOnCompleteListener {
+				if (it.isSuccessful)
+					trySend(ResultState.Success("Data inserted successfully"))
+			}.addOnFailureListener {
+				trySend(ResultState.Failure(it))
+			}
+			awaitClose {
+				close()
+			}
+		}
+	
+	override fun getWithdraw(): Flow<ResultState<List<RealtimeWithdrawResponse>>> =
+		callbackFlow {
+			trySend(ResultState.Loading)
+			
+			val valueEvent = object : ValueEventListener {
+				override fun onDataChange(snapshot: DataSnapshot) {
+					val withdraw = snapshot.children.map {
+						RealtimeWithdrawResponse(
+							it.getValue(RealtimeWithdrawResponse.WithdrawResponse::class.java),
+							key = it.key
+						)
+					}
+					trySend(ResultState.Success(withdraw))
+				}
+				
+				override fun onCancelled(error: DatabaseError) {
+					trySend(ResultState.Failure(error.toException()))
+				}
+				
+			}
+			
+			db.child("withdraw").addValueEventListener(valueEvent)
+			awaitClose {
+				db.child("withdraw").removeEventListener(valueEvent)
+				close()
+			}
+		}
+	
+	override fun updateWithdraw(wd: RealtimeWithdrawResponse.WithdrawResponse): Flow<ResultState<String>> {
+		TODO("Not yet implemented")
+	}
 	
 	override fun getDistance(): Flow<ResultState<List<RealtimeDistanceResponse>>> = callbackFlow {
 		trySend(ResultState.Loading)

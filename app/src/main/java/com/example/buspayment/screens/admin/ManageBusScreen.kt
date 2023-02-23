@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.buspayment.navigations.Screens
 import com.example.buspayment.realtimeDB.responses.RealtimeBusResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 
@@ -51,9 +49,7 @@ fun ManageBusScreen(
 				}, imageVector = Icons.Filled.ArrowBack, contentDescription = "Back button"
 			)
 			Text(text = "Manage Buses", style = MaterialTheme.typography.headlineSmall)
-			Icon(modifier = Modifier.clickable {
-				navController.navigate(Screens.ABus.route)
-			}, imageVector = Icons.Filled.Add, contentDescription = "Add new bus")
+			Text("")
 		}
 		Column {
 			if (res.bus.isNotEmpty()) {

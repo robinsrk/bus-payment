@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -449,18 +448,6 @@ fun ScanScreen(
 					) {
 						Text(text = "Proceed to payment $price taka")
 					}
-					Button(onClick = {
-						initialLocation.lastLocation.addOnCompleteListener { task ->
-							val rs = task.result
-							if (rs != null) {
-								val test = PolyUtil.containsLocation(rs.latitude, rs.longitude, xpoints, true)
-								location = "${rs.latitude} ${rs.longitude} $test"
-							}
-						}
-					}) {
-						Text(text = "Get Location")
-					}
-					Text(text = location)
 				}
 			}
 		} else if (loading) {
