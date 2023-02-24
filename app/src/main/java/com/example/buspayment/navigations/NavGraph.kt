@@ -16,6 +16,7 @@ import com.example.buspayment.screens.common.ConductorRegistrationScreen
 import com.example.buspayment.screens.common.LoginScreen
 import com.example.buspayment.screens.common.SplashScreen
 import com.example.buspayment.screens.common.UserRegistrationScreen
+import com.example.buspayment.screens.conductor.AllPaymentListScreen
 import com.example.buspayment.screens.conductor.ConductorHomeScreen
 import com.example.buspayment.screens.conductor.ConductorQRCode
 import com.example.buspayment.screens.conductor.PaymentListScreen
@@ -42,6 +43,12 @@ fun SetupNavGraph(navController: NavHostController) {
 			route = Screens.regUser.route
 		) {
 			UserRegistrationScreen(navController)
+		}
+		
+		composable(
+			route = Screens.allPm.route
+		) {
+			AllPaymentListScreen(navController)
 		}
 		composable(
 				route = Screens.regCon.route

@@ -9,6 +9,7 @@ sealed class Screens(val route: String) {
 	object UHistory : Screens(route = "user_history_screen")
 	object Login : Screens(route = "login_screen")
 	object regUser : Screens(route = "register_user_screen")
+	object allPm : Screens(route = "all_payment_screen")
 	object regCon : Screens(route = "register_conductor_screen")
 	object map : Screens(route = "map_screen")
 	object AHome : Screens(route = "admin_home_screen")

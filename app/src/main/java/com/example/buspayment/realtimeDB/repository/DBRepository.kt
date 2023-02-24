@@ -51,7 +51,7 @@ class DBRepository @Inject constructor(
 		}
 	
 	
-	override fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimePaymentResponse>>> =
+	override fun getConductorPaymentList(): Flow<ResultState<List<RealtimePaymentResponse>>> =
 		callbackFlow {
 			trySend(ResultState.Loading)
 			

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -44,19 +45,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buspayment.data.User
 import com.example.buspayment.data.UserViewModel
-import com.example.buspayment.navigations.Screens
 import com.example.buspayment.realtimeDB.responses.RealtimePaymentResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
 import com.example.buspayment.utils.ResultState
 import kotlinx.coroutines.launch
-
 @Composable
-fun PaymentListScreen(
+fun AllPaymentListScreen(
 	navController: NavController,
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	val res = viewModel.payres.value
 	val context = LocalContext.current
+	var total by remember {mutableStateOf(0.0)}
 	var user by remember { mutableStateOf(listOf<User>()) }
 	val mUserViewModel: UserViewModel =
 		viewModel(factory = UserViewModel.UserViewModelFactory(context.applicationContext as Application))
@@ -84,17 +84,13 @@ fun PaymentListScreen(
 				}, imageVector = Icons.Filled.ArrowBack, contentDescription = "Back button"
 			)
 			Text(text = "Pending payments", style = MaterialTheme.typography.headlineSmall)
-			Icon(
-				modifier = Modifier.clickable {
-					navController.navigate(Screens.allPm.route )
-				}, imageVector = Icons.Filled.ArrowForward, contentDescription = "Back button"
-			)
+			Text(text = "Total: $total")
 		}
 		Column {
 			if (res.payment.isNotEmpty()) {
 				val paymentList =
 					res.payment.filter { item ->
-						item.payment!!.status == "Pending" && item.payment.toUser == email.substringBefore(
+						item.payment!!.toUser == email.substringBefore(
 							"@"
 						)
 					}
@@ -105,7 +101,48 @@ fun PaymentListScreen(
 							it.key!!
 						}
 					) { res ->
-						PaymentListRow(itemState = res)
+						Card(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(10.dp)
+						) {
+							Column() {
+								Row(
+									horizontalArrangement = Arrangement.SpaceBetween,
+									verticalAlignment = Alignment.CenterVertically,
+									modifier = Modifier
+										.fillMaxWidth()
+										.padding(10.dp)
+								) {
+									Text(res.payment?.fromUser!!, style = MaterialTheme.typography.bodyLarge)
+									Column(horizontalAlignment = Alignment.CenterHorizontally) {
+										Text(res.payment.date.toString())
+										Text(res.payment.time.toString())
+									}
+									
+									Column(horizontalAlignment = Alignment.CenterHorizontally) {
+										Text(res.payment.paid!!.toString() + " Taka")
+										Text("${res.payment.from!!} -> ${res.payment.to!!}")
+									}
+									when (res.payment.status) {
+										"Accepted" -> {
+											Icon(imageVector = Icons.Filled.Done, contentDescription = "Accepted", tint = Color.Green)
+										}
+										
+										"Rejected" -> Icon(
+											imageVector = Icons.Filled.Close,
+											contentDescription = "Accepted",
+											tint = Color.Red
+										)
+										
+										else -> Icon(
+											imageVector = Icons.Filled.HourglassBottom,
+											contentDescription = "Accepted",
+										)
+									}
+								}
+							}
+						}
 					}
 				}
 			} else if (res.isLoading) {
@@ -116,12 +153,11 @@ fun PaymentListScreen(
 }
 
 @Composable
-fun PaymentListRow(
+fun AllPaymentListRow(
 	itemState: RealtimePaymentResponse,
-	viewModel: RealtimeViewModel = hiltViewModel()
+	total: Double
 ) {
-	val scope = rememberCoroutineScope()
-	val context = LocalContext.current
+//	total += itemState.payment!!.paid!!
 	Card(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -136,96 +172,27 @@ fun PaymentListRow(
 					.padding(10.dp)
 			) {
 				Text(itemState.payment?.fromUser!!, style = MaterialTheme.typography.bodyLarge)
-				Column(horizontalAlignment = Alignment.CenterHorizontally) {
-					Text(itemState.payment.date.toString())
-					Text(itemState.payment.time.toString())
-				}
-				
+				Text(itemState.payment.time.toString())
 				Column(horizontalAlignment = Alignment.CenterHorizontally) {
 					Text(itemState.payment.paid!!.toString() + " Taka")
 					Text("${itemState.payment.from!!} -> ${itemState.payment.to!!}")
 				}
-				Row() {
-					Icon(imageVector = Icons.Filled.Done, contentDescription = "Accept",
-						modifier = Modifier.clickable {
-							scope.launch {
-								viewModel.updatePayment(
-									email = itemState.payment.fromUser,
-									RealtimePaymentResponse(
-										payment = RealtimePaymentResponse.PaymentResponse(
-											fromUser = itemState.payment.fromUser,
-											code = itemState.payment.code,
-											status = "Accepted",
-											toUser = itemState.payment.toUser,
-											from = itemState.payment.from,
-											to = itemState.payment.to,
-											paid = itemState.payment.paid,
-											bus = itemState.payment.bus
-										),
-										key = itemState.key
-									)
-								).collect {
-									when (it) {
-										is ResultState.Success -> {
-											Toast.makeText(context, "Payment accepted", Toast.LENGTH_SHORT).show()
-										}
-										
-										is ResultState.Failure -> {
-											Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show()
-										}
-										
-										is ResultState.Loading -> {
-										
-										}
-									}
-								}
-							}
-						}
+				when (itemState.payment.status) {
+					"Accepted" -> {
+						Icon(imageVector = Icons.Filled.Done, contentDescription = "Accepted", tint = Color.Green)
+					}
+					
+					"Rejected" -> Icon(
+						imageVector = Icons.Filled.Close,
+						contentDescription = "Accepted",
+						tint = Color.Red
 					)
-					Icon(imageVector = Icons.Filled.Close, contentDescription = "Reject",
-						modifier = Modifier.clickable {
-							scope.launch {
-								viewModel.updatePayment(
-									email = itemState.payment.fromUser,
-									RealtimePaymentResponse(
-										payment = RealtimePaymentResponse.PaymentResponse(
-											fromUser = itemState.payment.fromUser,
-											code = itemState.payment.code,
-											status = "Rejected",
-											toUser = itemState.payment.toUser,
-											from = itemState.payment.from,
-											to = itemState.payment.to,
-											paid = itemState.payment.paid,
-											bus = itemState.payment.bus
-										),
-										key = itemState.key
-									)
-								).collect {
-									when (it) {
-										is ResultState.Success -> {
-											Toast.makeText(context, "Payment rejected", Toast.LENGTH_SHORT).show()
-										}
-										
-										is ResultState.Failure -> {
-											Toast.makeText(context, "Failed", Toast.LENGTH_SHORT).show()
-										}
-										
-										is ResultState.Loading -> {
-										
-										}
-									}
-								}
-							}
-						}
+					
+					else -> Icon(
+						imageVector = Icons.Filled.HourglassBottom,
+						contentDescription = "Accepted",
 					)
 				}
-			}
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				horizontalArrangement = Arrangement.Center
-			)
-			{
-				Text(text = itemState.payment!!.code!!, style = MaterialTheme.typography.headlineMedium)
 			}
 		}
 	}

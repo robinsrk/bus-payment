@@ -23,7 +23,7 @@ interface Repository {
 		to: String
 	): Flow<ResultState<String>>
 	
-	fun getConductorPaymentList(email: String): Flow<ResultState<List<RealtimePaymentResponse>>>
+	fun getConductorPaymentList(): Flow<ResultState<List<RealtimePaymentResponse>>>
 	fun getPaymentHistoryByUser(email: String): Flow<ResultState<List<RealtimePaymentResponse>>>
 	fun updatePayment(email: String, res: RealtimePaymentResponse): Flow<ResultState<String>>
 	fun deleteUser(

@@ -117,7 +117,10 @@ fun HistoryRow(
 				.padding(10.dp)
 		) {
 			Text(itemState.bus!!, style = MaterialTheme.typography.bodyLarge)
-			Text(itemState.time!!)
+			Column(horizontalAlignment = Alignment.CenterHorizontally) {
+				Text(itemState.date!!)
+				Text(itemState.time!!)
+			}
 			Column(horizontalAlignment = Alignment.CenterHorizontally) {
 				Text(itemState.paid!!.toString() + " Taka")
 				Text("${itemState.from!!} -> ${itemState.to!!}")

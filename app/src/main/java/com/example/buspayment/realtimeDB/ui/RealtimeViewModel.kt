@@ -140,9 +140,9 @@ class RealtimeViewModel @Inject constructor(
 		}
 	}
 	
-	fun getConductorPaymentList(email: String) {
+	fun getConductorPaymentList() {
 		viewModelScope.launch {
-			repo.getConductorPaymentList(email).collect {
+			repo.getConductorPaymentList().collect {
 				when (it) {
 					is ResultState.Success -> {
 						_payRes.value = PaymentState(

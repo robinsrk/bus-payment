@@ -109,7 +109,8 @@ fun ScanScreen(
 	val distance = viewModel.distRes.value
 	val scope = rememberCoroutineScope()
 	val buses = viewModel.busRes.value
-	val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm"))
+	val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"))
+	val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/YYYY"))
 	var user by remember { mutableStateOf(listOf<User>()) }
 	var bus by remember { mutableStateOf(RealtimeBusResponse.BusResponse()) }
 	val mUserViewModel: UserViewModel =
@@ -410,6 +411,7 @@ fun ScanScreen(
 										paid = price,
 										bus = bus.name,
 										time = time,
+										date = date,
 										passNum = person.toInt(),
 										code = Random.nextInt(1000, 10000).toString()
 									), from = user[0].email.substringBefore("@"), to = code

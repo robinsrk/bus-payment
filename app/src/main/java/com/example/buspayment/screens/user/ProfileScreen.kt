@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,9 @@ import com.example.buspayment.data.UserViewModel
 import com.example.buspayment.navigations.Screens
 import com.example.buspayment.realtimeDB.responses.RealtimeUserResponse
 import com.example.buspayment.realtimeDB.ui.RealtimeViewModel
+import com.example.buspayment.utils.ResultState
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
@@ -51,6 +55,7 @@ fun ProfileScreen(
 	viewModel: RealtimeViewModel = hiltViewModel()
 ) {
 	val userResponse = viewModel.userRes.value
+	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
 	var email by remember { mutableStateOf("") }
 	var userName by remember { mutableStateOf("") }
@@ -64,8 +69,9 @@ fun ProfileScreen(
 		email = user[0].email
 	}
 	LaunchedEffect(user){
-		if(email.isNotEmpty())
-		viewModel.getUser(email)
+		if(email.isNotEmpty()){
+			viewModel.getUser(email)
+		}
 	}
 	LaunchedEffect(userResponse){
 		if(userResponse.user.isNotEmpty()){
@@ -144,7 +150,7 @@ fun ProfileScreen(
 							Text(text = "Name: ")
 							OutlinedTextField(
 								value = userName,
-								onValueChange = { }
+								onValueChange =  { text -> userName = text }
 							)
 						}
 						Row(
@@ -170,7 +176,7 @@ fun ProfileScreen(
 							Text(text = "Phone: ")
 							OutlinedTextField(
 								value = phone,
-								onValueChange = { }
+								onValueChange = { text -> phone = text }
 							)
 						}
 						Row(
@@ -200,16 +206,6 @@ fun ProfileScreen(
 							}
 							OutlinedButton(
 								onClick = {
-									viewModel.updateUser(
-										RealtimeUserResponse(
-											RealtimeUserResponse.UserResponse(
-												userName = userName,
-												email = email,
-												userId = id,
-												phone = phone,
-											)
-										)
-									)
 								},
 								Modifier.padding(10.dp)
 							) {
